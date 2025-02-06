@@ -41,6 +41,11 @@ class ModularPolynomial:
 
         return " + ".join(terms) + " mod " + str(self.modulus)
 
+    def __eq__(self, other):
+        if not isinstance(other, ModularPolynomial):
+            return False
+        return self.modulus == other.modulus and self.coefficients == other.coefficients
+
     def get_degree(self):
         return len(self.coefficients) - 1
 
@@ -50,17 +55,15 @@ class ModularPolynomial:
     def get_copy(self):
         return ModularPolynomial(self.modulus, self.coefficients)
 
+    def is_zero(self):
+        return len(self.coefficients) == 1 and self.coefficients[0] == 0
+
     def evaluate(self, arg):
         # Use Horner's method for more efficient evaluation
         result = 0
         for coeff in reversed(self.coefficients):
             result = (result * arg + coeff) % self.modulus
         return result
-
-    def __eq__(self, other):
-        if not isinstance(other, ModularPolynomial):
-            return False
-        return self.modulus == other.modulus and self.coefficients == other.coefficients
 
     def add_to(self, other, negative=False):
         if self.modulus != other.modulus:
@@ -109,7 +112,9 @@ class ModularPolynomial:
         quotient = ModularPolynomial(self.modulus, [0])
         remainder = self.get_copy()
 
-        while remainder.get_degree() >= other.get_degree() and remainder.get_degree() > 0:
+        while remainder.get_degree() >= other.get_degree():
+            if remainder.is_zero():
+                break
             qt_degree = remainder.get_degree() - other.get_degree()
             #By assuming the modulus is prime, we can use Eulers Theorem:
             other_lead_inverse = (other.get_lead_coefficient() ** (self.modulus - 2)) % self.modulus
@@ -120,3 +125,22 @@ class ModularPolynomial:
             remainder = intermediate_expression.subtract_from(remainder)
 
         return DivisionResult(quotient, remainder)
+
+    def is_irreducible(self):
+        # Degree 0 case
+        if self.get_degree() == 0:
+            return self.coefficients[0] != 0
+
+        # Degree 1 case
+        if self.get_degree() == 1:
+            return True
+
+        # Degree 2 or 3 case: check for roots
+        if self.get_degree() <= 3:
+            for x in range(self.modulus):
+                if self.evaluate(x) == 0:
+                    return False
+            return True
+
+        # Higher degrees will need a different approach
+        raise NotImplementedError("Irreducibility test not implemented for degree >= 4")

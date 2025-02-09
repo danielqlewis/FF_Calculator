@@ -226,11 +226,10 @@ class ModularPolynomial:
         quotient = ModularPolynomial(self.modulus, [0])
         remainder = self.get_copy()
 
-        while remainder.get_degree() >= other.get_degree():
-            if remainder.is_zero():
-                break
+        while remainder.get_degree() >= other.get_degree() and not remainder.is_zero():
+            #to build the quotient term we need to find its degree and its coefficient
             qt_degree = remainder.get_degree() - other.get_degree()
-            #By assuming the modulus is prime, we can use Eulers Theorem:
+            #By assuming the modulus is prime, we can use Eulers Theorem (a^-1 = a^(m -2)):
             other_lead_inverse = (other.get_lead_coefficient() ** (self.modulus - 2)) % self.modulus
             qt_coefficient = remainder.get_lead_coefficient() * other_lead_inverse
             quotient_term = ModularPolynomial(self.modulus, [0] * qt_degree + [qt_coefficient])

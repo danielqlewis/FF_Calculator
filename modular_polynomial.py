@@ -112,6 +112,15 @@ class ModularPolynomial:
         """
         return len(self.coefficients) == 1 and self.coefficients[0] == 0
 
+    def is_constant(self):
+        """
+        Check if this is a constant polynomial.
+
+        Returns:
+            True if this instance is a constant polynomial, False otherwise.
+        """
+        return len(self.coefficients) == 1
+    
     def evaluate(self, arg: int) -> int:
         """
         Evaluate the polynomial at a given value using Horner's method.

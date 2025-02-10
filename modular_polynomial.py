@@ -103,6 +103,15 @@ class ModularPolynomial:
         """
         return ModularPolynomial(self.modulus, self.coefficients)
 
+    def get_negative(self) -> 'ModularPolynomial':
+        """
+        Create a deep copy of the additive inverse of this polynomial.
+
+        Returns:
+            A new ModularPolynomial with the same modulus and inverse coefficients.
+        """
+        return ModularPolynomial(self.modulus, [self.modulus - x for x in self.coefficients])
+    
     def is_zero(self) -> bool:
         """
         Check if this is the zero polynomial.
@@ -170,6 +179,13 @@ class ModularPolynomial:
 
         return ModularPolynomial(self.modulus, new_coefficients)
 
+    def add_one(self):
+        """
+        return a new polynomial equal to the sum of this polynomial and one
+        """
+        polynomial_one = ModularPolynomial(self.modulus, [1])
+        return self.add_to(polynomial_one)
+    
     def subtract_from(self, other: 'ModularPolynomial') -> 'ModularPolynomial':
         """
         Subtract this polynomial from another one.

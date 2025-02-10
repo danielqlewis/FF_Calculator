@@ -10,7 +10,7 @@ def is_prime(n):
     return True
 
 
-def create_field_selection_frame(parent):
+def create_field_selection_frame(parent, on_field_change=None):
     # Create the labeled frame
     field_frame = ttk.LabelFrame(parent, text="Field Selection", padding="10")
 
@@ -61,9 +61,10 @@ def create_field_selection_frame(parent):
                     raise ValueError("p must be prime")
 
                 # If we get here, inputs are valid
-                mod_text.set("Polynomial Modulus: ")
                 p_entry.state(['disabled'])
                 n_entry.state(['disabled'])
+                if on_field_change:
+                    on_field_change(p, n, True)
 
             except ValueError as e:
                 messagebox.showerror("Invalid Input", str(e))
@@ -73,6 +74,8 @@ def create_field_selection_frame(parent):
             p_entry.state(['!disabled'])
             n_entry.state(['!disabled'])
             mod_text.set("")
+            if on_field_change:
+                on_field_change(None, None, False)
 
     # Create the toggle switch
     active_check = ttk.Checkbutton(field_frame,
@@ -81,13 +84,11 @@ def create_field_selection_frame(parent):
                                    command=toggle_field)
     active_check.grid(row=3, column=0, columnspan=2, pady=10)
 
+    # Function to update the display
+    def update_modulus(new_text):
+        mod_text.set("Polynomial Modulus: " + new_text)
+
+    # Make the update function available to the caller
+    field_frame.update_modulus = update_modulus
+    
     return field_frame
-
-
-# Test window
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Field Selection Test")
-    frame = create_field_selection_frame(root)
-    frame.grid(row=0, column=0, padx=10, pady=10)
-    root.mainloop()

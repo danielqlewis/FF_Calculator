@@ -95,6 +95,8 @@ def find_irreducible(p, n):
         return ModularPolynomial(p, [primitive_elements[0], leading_term])
 
     else:
+        # These special cases occur because F₂ and F₃ do not have irreducible trinomials
+        # of these degrees, requiring polynomials with more terms.
         if (p == 2 and n == 9) or (p == 3 and n == 11):
             if p == 2:
                 return ModularPolynomial(2, [1, 1, 0, 0, 0, 0, 1, 1, 1])

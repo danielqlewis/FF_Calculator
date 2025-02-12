@@ -36,7 +36,7 @@ Optimization and cleanup of the codebase while maintaining test compliance. This
 ### Phase 4: Documentation
 Creation of comprehensive documentation at all levels. This includes inline comments, function and class docstrings, mathematical background information, usage examples, and architectural documentation. The aim is to make the project accessible to future developers and users.
 
-**Current Status: Completing Phase 1 - Initial Implementation**
+**Current Status: Starting Phase 2 - Comprehensive Testing**
 
 
 ## Code Architecture
@@ -70,7 +70,7 @@ The main module coordinates between the GUI components and mathematical engine. 
 ### GUI Components
 - **field_selector_gui.py**: Creates a frame allowing users to select the field GF(p^n) by inputting p and n. Validates inputs, manages the field selection state, and displays the irreducible polynomial being used to construct the field.
 
-- **poly_entry_gui.py**: Provides an interface for entering two polynomials and selecting an operation (addition, subtraction, multiplication, or division). Dynamically adjusts to the degree of the field extension, providing the appropriate number of coefficient entry boxes.
+- **poly_entry_gui.py**: Provides an interface for entering two polynomials and selecting an operation (addition, subtraction, multiplication, or division). Dynamically adjusts to the degree of the field polynomial modulus, providing the appropriate number of coefficient entry boxes.
 
 - **result_display_gui.py**: Simple display frame that shows the result of field operations in standard polynomial notation.
 

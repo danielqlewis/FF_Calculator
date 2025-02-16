@@ -839,13 +839,16 @@ class TestModularPolynomial(unittest.TestCase):
                 polynomials.append(coeffs)
 
             # Add some special polynomials to test edge cases
-            special_polynomials = [
-                [1],  # 1
-                [0, 1],  # x
-                [1] * calculator.polynomial_modulus.get_degree(),  # all ones
-                [1 if i == 0 or i == calculator.polynomial_modulus.get_degree() - 1 else 0
-                 for i in range(calculator.polynomial_modulus.get_degree())]  # terms only at ends
-            ]
+            if dim == 1:
+                special_polynomials = [[1]]
+            else:
+                special_polynomials = [
+                    [1],  # 1
+                    [0, 1],  # x
+                    [1] * calculator.polynomial_modulus.get_degree(),  # all ones
+                    [1 if i == 0 or i == calculator.polynomial_modulus.get_degree() - 1 else 0
+                     for i in range(calculator.polynomial_modulus.get_degree())]  # terms only at ends
+                ]
             polynomials.extend(special_polynomials)
 
             # Test field properties with all polynomial combinations

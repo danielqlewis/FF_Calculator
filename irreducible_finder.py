@@ -11,7 +11,8 @@ PRIME_FACTORS = {
     8: [2],
     9: [3],
     10: [2, 5],
-    11: [11]
+    11: [11],
+    12: [2, 3]
 }
 
 
@@ -85,19 +86,16 @@ def check_if_irreducible(poly):
     return True
 
 
-def find_irreducible(p, n):
+def find_irreducible(p, d):
     primitive_elements = [x for x in range(1, p) if check_if_primitive(x, p)]
     leading_term = 1
-    if n == 1:
-        return ModularPolynomial(p, [primitive_elements[0]])
-
-    elif n == 2:
-        return ModularPolynomial(p, [primitive_elements[0], leading_term])
+    if d == 1:
+        return ModularPolynomial(p, [0, leading_term])
 
     else:
         # These special cases occur because F₂ and F₃ do not have irreducible trinomials
         # of these degrees, requiring polynomials with more terms.
-        if (p == 2 and n == 9) or (p == 3 and n == 11):
+        if (p == 2 and d == 8) or (p == 3 and d == 10):
             if p == 2:
                 return ModularPolynomial(2, [1, 1, 0, 0, 0, 0, 1, 1, 1])
             elif p == 3:
@@ -105,9 +103,9 @@ def find_irreducible(p, n):
         else:
             for constant in primitive_elements:
                 for y in range(1, p):
-                    for x in range(1, n - 1):
+                    for x in range(1, d):
                         lower_term_zeros = [0] * (x - 1)
-                        higher_term_zeros = [0] * (n - x - 2)
+                        higher_term_zeros = [0] * (d - x - 1)
                         coefficient_set = [constant] + lower_term_zeros + [y] + higher_term_zeros + [leading_term]
                         polynomial = ModularPolynomial(p, coefficient_set)
                         if check_if_irreducible(polynomial):

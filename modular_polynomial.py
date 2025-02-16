@@ -28,7 +28,7 @@ class ModularPolynomial:
             raise ValueError("Modulus must be positive")
         self.modulus = modulus
         # Remove trailing zeros and normalize coefficients
-        while raw_coefficients and raw_coefficients[-1] == 0:
+        while raw_coefficients and raw_coefficients[-1] % modulus == 0:
             raw_coefficients.pop()
         self.coefficients = [x % modulus for x in raw_coefficients] if raw_coefficients else [0]
 
@@ -101,7 +101,7 @@ class ModularPolynomial:
         Returns:
             A new ModularPolynomial with the same modulus and coefficients.
         """
-        return ModularPolynomial(self.modulus, self.coefficients)
+        return ModularPolynomial(self.modulus, self.coefficients.copy())
 
     def get_negative(self) -> 'ModularPolynomial':
         """
@@ -120,6 +120,15 @@ class ModularPolynomial:
             True if this instance is the zero polynomial, False otherwise.
         """
         return len(self.coefficients) == 1 and self.coefficients[0] == 0
+
+    def is_one(self) -> bool:
+        """
+        Check if this is the unit polynomial.
+
+        Returns:
+            True if this instance is the unit polynomial, False otherwise.
+        """
+        return len(self.coefficients) == 1 and self.coefficients[0] == 1
 
     def is_constant(self):
         """

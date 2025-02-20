@@ -1,4 +1,5 @@
 from modular_polynomial import ModularPolynomial
+from itertools import product
 
 PRIME_FACTORS = {
     1: [1],
@@ -14,6 +15,17 @@ PRIME_FACTORS = {
     11: [11],
     12: [2, 3]
 }
+
+
+def check_if_divides(potential_factor, polynomial):
+    return polynomial.divided_by(potential_factor).remainder.is_zero()
+
+
+def generate_monic_polynomials(degree, prime_modulus):
+    if degree == 0:
+        return []
+    coeff_options = range(prime_modulus)
+    return [list(coeffs) + [1] for coeffs in product(coeff_options, repeat=degree)]
 
 
 def check_if_primitive(num, prime_modulus):
@@ -83,6 +95,14 @@ def check_if_irreducible(poly):
         active_check = compute_large_exponent_of_x(power, poly)
         if active_check == standard_poly:
             return False
+
+    if poly.get_degree() in [6, 10, 12]:
+        for degree_divisor in [1, 2]:
+            coefficients = generate_monic_polynomials(degree_divisor, poly.modulus)
+            for potential_divisor_poly in coefficients:
+                if check_if_divides(ModularPolynomial(poly.modulus, potential_divisor_poly), poly):
+                    return False
+
     return True
 
 
@@ -110,3 +130,6 @@ def find_irreducible(p, d):
                         polynomial = ModularPolynomial(p, coefficient_set)
                         if check_if_irreducible(polynomial):
                             return polynomial
+
+result = find_irreducible(47, 10)
+print(str(result))

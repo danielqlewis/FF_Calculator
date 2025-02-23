@@ -130,6 +130,3 @@ def find_irreducible(p, d):
                         polynomial = ModularPolynomial(p, coefficient_set)
                         if check_if_irreducible(polynomial):
                             return polynomial
-
-result = find_irreducible(47, 10)
-print(str(result))

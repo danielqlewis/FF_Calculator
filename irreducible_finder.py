@@ -17,7 +17,7 @@ PRIME_FACTORS = {
 }
 
 
-def compute_large_exponent_of_x(target_power, modulus_polynomial):
+def compute_large_exponent_of_x(target_power: int, modulus_polynomial: 'ModularPolynomial') -> 'ModularPolynomial':
     p = modulus_polynomial.modulus
     d = modulus_polynomial.get_degree()
     power = 1
@@ -46,28 +46,19 @@ def compute_large_exponent_of_x(target_power, modulus_polynomial):
     return active_expression
 
 
-def check_if_divides(potential_factor, polynomial):
-    return polynomial.divided_by(potential_factor).remainder.is_zero()
-
-
-def generate_monic_polynomials(degree, prime_modulus):
-    if degree == 0:
-        return []
-    coeff_options = range(prime_modulus)
-    return [list(coeffs) + [1] for coeffs in product(coeff_options, repeat=degree)]
-
-
-def check_non_prime_power_degree(poly):
-    for degree_divisor in [1, 2]:
-        coefficients = generate_monic_polynomials(degree_divisor, poly.modulus)
-        for potential_divisor_poly in coefficients:
-            if check_if_divides(ModularPolynomial(poly.modulus, potential_divisor_poly), poly):
+def check_non_prime_power_degree(poly: 'ModularPolynomial') -> bool:
+    coeff_options = range(poly.modulus)
+    for degree in [1, 2]:
+        coefficients = [list(coeffs) + [1] for coeffs in product(coeff_options, repeat=degree)]
+        for potential_divisor_coefficients in coefficients:
+            potential_divisor = ModularPolynomial(poly.modulus, potential_divisor_coefficients)
+            if poly.divided_by(potential_divisor).remainder.is_zero():
                 return False
 
     return True
 
 
-def check_if_low_degree_irreducible(poly, deg):
+def check_if_low_degree_irreducible(poly: 'ModularPolynomial', deg: int) -> bool:
     if deg == 0:
         return poly.coefficients[0] != 0
 
@@ -82,7 +73,7 @@ def check_if_low_degree_irreducible(poly, deg):
         return True
 
 
-def check_if_high_degree_irreducible(poly, deg):
+def check_if_high_degree_irreducible(poly: 'ModularPolynomial', deg: int) -> bool:
     standard_poly = ModularPolynomial(poly.modulus, [0, 1])
     power = poly.modulus ** deg
 
@@ -99,7 +90,7 @@ def check_if_high_degree_irreducible(poly, deg):
     return True
 
 
-def check_if_irreducible(poly):
+def check_if_irreducible(poly: 'ModularPolynomial') -> bool:
     deg = poly.get_degree()
     if deg <= 3:
         if not check_if_low_degree_irreducible(poly, deg):
@@ -115,7 +106,7 @@ def check_if_irreducible(poly):
     return True
 
 
-def check_if_primitive(num, prime_modulus):
+def check_if_primitive(num: int, prime_modulus: int) -> bool:
     order = 1
     current_value = num
     while current_value != 1:
@@ -125,31 +116,31 @@ def check_if_primitive(num, prime_modulus):
     return order == prime_modulus - 1
 
 
-def find_irreducible_trinomial(p, d):
-    primitive_elements = [x for x in range(1, p) if check_if_primitive(x, p)]
+def find_irreducible_trinomial(characteristic: int, degree: int) -> 'ModularPolynomial':
+    primitive_elements = [x for x in range(1, characteristic) if check_if_primitive(x, characteristic)]
     leading_term = 1
 
     for constant in primitive_elements + [1]:
-        for y in range(1, p):
-            for x in range(1, d):
+        for y in range(1, characteristic):
+            for x in range(1, degree):
                 lower_term_zeros = [0] * (x - 1)
-                higher_term_zeros = [0] * (d - x - 1)
+                higher_term_zeros = [0] * (degree - x - 1)
                 coefficient_set = [constant] + lower_term_zeros + [y] + higher_term_zeros + [leading_term]
-                polynomial = ModularPolynomial(p, coefficient_set)
+                polynomial = ModularPolynomial(characteristic, coefficient_set)
                 if check_if_irreducible(polynomial):
                     return polynomial
 
 
 
-def find_irreducible(p, d):
-    if d == 1:
-        return ModularPolynomial(p, [0, 1])
+def find_irreducible(characteristic: int, degree: int) -> 'ModularPolynomial':
+    if degree == 1:
+        return ModularPolynomial(characteristic, [0, 1])
 
     # This special case occur because F₂ does not have an irreducible trinomial
     # of degree 8 requiring a polynomials with more terms.
-    elif p == 2 and d == 8:
+    elif characteristic == 2 and degree == 8:
         return ModularPolynomial(2, [1, 1, 0, 0, 0, 0, 1, 1, 1])
 
     else:
-        return find_irreducible_trinomial(p, d)
+        return find_irreducible_trinomial(characteristic, degree)
 

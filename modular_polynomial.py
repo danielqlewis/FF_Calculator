@@ -130,7 +130,7 @@ class ModularPolynomial:
         """
         return len(self.coefficients) == 1 and self.coefficients[0] == 1
 
-    def is_constant(self):
+    def is_constant(self) -> bool:
         """
         Check if this is a constant polynomial.
 
@@ -180,6 +180,7 @@ class ModularPolynomial:
         for i in range(max_len):
             # Get coefficients or 0 if index is out of range
             a = self.coefficients[i] if i < len(self.coefficients) else 0
+            # Get other coefficents directly or their additive inverses if subtracting
             if negative:
                 b = self.modulus - other.coefficients[i] if i < len(other.coefficients) else 0
             else:
@@ -188,9 +189,9 @@ class ModularPolynomial:
 
         return ModularPolynomial(self.modulus, new_coefficients)
 
-    def add_one(self):
+    def add_one(self) -> 'ModularPolynomial':
         """
-        return a new polynomial equal to the sum of this polynomial and one
+        Return a new polynomial equal to the sum of this polynomial and one
         """
         polynomial_one = ModularPolynomial(self.modulus, [1])
         return self.add_to(polynomial_one)
@@ -234,6 +235,43 @@ class ModularPolynomial:
 
         return ModularPolynomial(self.modulus, result)
 
+    def _validate_division(self, other: 'ModularPolynomial') -> None:
+        """
+        Validate that division is possible.
+
+        Raises:
+            ValueError: If polynomials have different moduli or if other is zero.
+        """
+        if self.modulus != other.modulus:
+            raise ValueError("Polynomials must have the same modulus [Division]")
+        if not other.coefficients or all(c == 0 for c in other.coefficients):
+            raise ValueError("Cannot divide by zero polynomial")
+
+    def _can_continue_division(self, remainder: 'ModularPolynomial', divisor: 'ModularPolynomial') -> bool:
+        """
+        Check if another iteration of polynomial division is needed.
+
+        Returns:
+            True if the remainder is large enough for another step of division, False otherwise.
+        """
+        return remainder.get_degree() >= divisor.get_degree() and not remainder.is_zero()
+
+    def _calculate_next_quotient_term(self, remainder: 'ModularPolynomial',
+                                      divisor: 'ModularPolynomial') -> 'ModularPolynomial':
+        """
+        Calculate the next term of the quotient polynomial.
+
+        Returns:
+            A new ModularPolynomial representing the next quotient term.
+        """
+        # Use Euler's Theorem (a^-1 = a^(m-2)) to find multiplicative inverse
+        divisor_lead_inverse = (divisor.get_lead_coefficient() ** (self.modulus - 2)) % self.modulus
+
+        term_degree = remainder.get_degree() - divisor.get_degree()
+        term_coefficient = (remainder.get_lead_coefficient() * divisor_lead_inverse) % self.modulus
+
+        return ModularPolynomial(self.modulus, [0] * term_degree + [term_coefficient])
+
     def divided_by(self, other: 'ModularPolynomial') -> 'DivisionResult':
         """
         Divide this polynomial by another using polynomial long division.
@@ -252,23 +290,15 @@ class ModularPolynomial:
         Note:
             Assumes the modulus is prime to compute multiplicative inverses.
         """
-        if self.modulus != other.modulus:
-            raise ValueError("Polynomials must have the same modulus [Division]")
-        if not other.coefficients or all(c == 0 for c in other.coefficients):
-            raise ValueError("Cannot divide by zero polynomial")
+        self._validate_division(other)
 
         quotient = ModularPolynomial(self.modulus, [0])
         remainder = self.get_copy()
 
-        while remainder.get_degree() >= other.get_degree() and not remainder.is_zero():
-            #to build the quotient term we need to find its degree and its coefficient
-            qt_degree = remainder.get_degree() - other.get_degree()
-            #By assuming the modulus is prime, we can use Eulers Theorem (a^-1 = a^(m -2)):
-            other_lead_inverse = (other.get_lead_coefficient() ** (self.modulus - 2)) % self.modulus
-            qt_coefficient = remainder.get_lead_coefficient() * other_lead_inverse
-            quotient_term = ModularPolynomial(self.modulus, [0] * qt_degree + [qt_coefficient])
-            intermediate_expression = other.product_with(quotient_term)
-            quotient = quotient.add_to(quotient_term)
+        while self._can_continue_division(remainder, other):
+            next_term = self._calculate_next_quotient_term(remainder, other)
+            quotient = quotient.add_to(next_term)
+            intermediate_expression = other.product_with(next_term)
             remainder = intermediate_expression.subtract_from(remainder)
 
         return DivisionResult(quotient, remainder)

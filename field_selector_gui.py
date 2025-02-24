@@ -1,16 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 
 
-def is_prime(n):
-    for i in range(2, int(n ** 0.5) + 1):
-        if n % i == 0:
-            return False
-    return True
-
-
-def create_field_selection_frame(parent, on_field_change=None):
+def create_field_selection_frame(parent, on_field_select, on_field_deselect):
     # Create the labeled frame
     field_frame = ttk.LabelFrame(parent, text="Field Selection", padding="10")
 
@@ -44,38 +36,16 @@ def create_field_selection_frame(parent, on_field_change=None):
     # Variable to track active state
     is_active = tk.BooleanVar(value=False)
 
+
     def toggle_field():
         current_state = is_active.get()
 
         if current_state:  # Checkbox was just checked
-            try:
-                p = int(p_entry.get())
-                n = int(n_entry.get())
-
-                # Validate inputs
-                if not (1 < p <= 101):
-                    raise ValueError("Must have 1 < p < 102")
-                if not (0 < n <= 12):
-                    raise ValueError("Must have 0 < n < 13")
-                if not is_prime(p):
-                    raise ValueError("p must be prime")
-
-                # If we get here, inputs are valid
-                p_entry.state(['disabled'])
-                n_entry.state(['disabled'])
-                if on_field_change:
-                    on_field_change(p, n, True)
-
-            except ValueError as e:
-                messagebox.showerror("Invalid Input", str(e))
-                is_active.set(False)  # Revert the checkbox
-                return
+            p = int(p_entry.get())
+            n = int(n_entry.get())
+            on_field_select(p, n)
         else:  # Checkbox was just unchecked
-            p_entry.state(['!disabled'])
-            n_entry.state(['!disabled'])
-            mod_text.set("")
-            if on_field_change:
-                on_field_change(None, None, False)
+            on_field_deselect()
 
     # Create the toggle switch
     active_check = ttk.Checkbutton(field_frame,
@@ -84,11 +54,79 @@ def create_field_selection_frame(parent, on_field_change=None):
                                    command=toggle_field)
     active_check.grid(row=3, column=0, columnspan=2, pady=10)
 
-    # Function to update the display
-    def update_modulus(new_text):
-        mod_text.set("Polynomial Modulus: " + new_text)
+    # Functions for coordinator to call
+    def deactivate_and_show_loading():
+        p_entry.state(['disabled'])
+        n_entry.state(['disabled'])
+        active_check.state(['disabled'])
+        mod_text.set("Finding irreducible modulus...")
 
-    # Make the update function available to the caller
-    field_frame.update_modulus = update_modulus
-    
-    return field_frame
+    def update_modulus_display(modulus_text):
+        mod_text.set(modulus_text)
+        active_check.state(['!disabled'])
+
+    def reset_to_initial_state():
+        is_active.set(False)
+        p_entry.state(['!disabled'])
+        n_entry.state(['!disabled'])
+        active_check.state(['!disabled'])
+        mod_text.set("")
+
+    # Return the frame and interface functions
+    return {
+        'frame': field_frame,
+        'deactivate_and_show_loading': deactivate_and_show_loading,
+        'update_modulus_display': update_modulus_display,
+        'reset_to_initial_state': reset_to_initial_state
+    }
+
+
+
+
+
+    # def toggle_field():
+    #     current_state = is_active.get()
+    #
+    #     if current_state:  # Checkbox was just checked
+    #         try:
+    #             p = int(p_entry.get())
+    #             n = int(n_entry.get())
+    #
+    #             # Validate inputs
+    #             if not (1 < p <= 101):
+    #                 raise ValueError("Must have 1 < p < 102")
+    #             if not (0 < n <= 12):
+    #                 raise ValueError("Must have 0 < n < 13")
+    #             if not is_prime(p):
+    #                 raise ValueError("p must be prime")
+    #
+    #             # If we get here, inputs are valid
+    #             p_entry.state(['disabled'])
+    #             n_entry.state(['disabled'])
+    #             if on_field_change:
+    #                 on_field_change(p, n, True)
+    #
+    #         except ValueError as e:
+    #             messagebox.showerror("Invalid Input", str(e))
+    #             is_active.set(False)  # Revert the checkbox
+    #             return
+    #     else:  # Checkbox was just unchecked
+    #         p_entry.state(['!disabled'])
+    #         n_entry.state(['!disabled'])
+    #         mod_text.set("")
+    #         if on_field_change:
+    #             on_field_change(None, None, False)
+    #
+    # # Create the toggle switch
+    # active_check = ttk.Checkbutton(field_frame,
+    #                                text="Set Active Field",
+    #                                variable=is_active,
+    #                                command=toggle_field)
+    # active_check.grid(row=3, column=0, columnspan=2, pady=10)
+    #
+    # # Function to update the display
+    # def update_modulus(new_text):
+    #     mod_text.set("Polynomial Modulus: " + new_text)
+    #
+    # # Make the update function available to the caller
+    # field_frame.update_modulus = update_modulus

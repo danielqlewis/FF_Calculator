@@ -3,16 +3,6 @@ from tkinter import ttk
 
 
 def create_polynomial_entry_row(frame, row_num, num_terms):
-    """Create a row of entry boxes for polynomial coefficients with connecting labels.
-
-    Args:
-        frame: The tkinter frame to place the entries in
-        row_num: Which row to place this polynomial entry on
-        num_terms: Number of terms in the polynomial
-
-    Returns:
-        List of entry widgets for accessing the values later
-    """
     entries = []
     for i in range(1, 2 * num_terms + 1, 2):
         if i == 2 * num_terms - 3:
@@ -72,49 +62,68 @@ def create_operation_buttons(frame, row_num):
     return operation_var
 
 
-def perform_calculation(entries1, entries2, operation_var):
-    coeffs1 = [int(entry.get()) for entry in reversed(entries1)]
-    coeffs2 = [int(entry.get()) for entry in reversed(entries2)]
-    operation = operation_var.get()
-
-    # For now, just print to verify we're getting the right info
-    print(f"Polynomial 1 coefficients: {coeffs1}")
-    print(f"Polynomial 2 coefficients: {coeffs2}")
-    print(f"Operation selected: {operation}")
-
-
-def create_polynomial_operations_frame(parent, number_of_terms=1):
-    """Create a frame containing the polynomial operation interface.
-
-    Args:
-        parent: The parent widget to place this frame in
-        number_of_terms: Number of terms in the polynomials (default 12)
-
-    Returns:
-        A labeled frame containing the polynomial entry and operation interface
-    """
+def create_polynomial_operations_frame(parent, on_calculation_requested, number_of_terms=1):
     # Create the labeled frame
     poly_frame = ttk.LabelFrame(parent, text="Polynomial Operations", padding="10")
 
-    # Create two rows of polynomial entries
-    entries1 = create_polynomial_entry_row(poly_frame, 1, number_of_terms)
-    operation_var = create_operation_buttons(poly_frame, 2)
-    entries2 = create_polynomial_entry_row(poly_frame, 3, number_of_terms)
+    # Create entry containers that we can update
+    entries_container = ttk.Frame(poly_frame)
+    entries_container.grid(row=0, column=0, sticky="nsew")
 
-    calculate_button = ttk.Button(
-        poly_frame,
-        text="Calculate",
-        command=lambda: perform_calculation(entries1, entries2, operation_var)
-    )
-    calculate_button.grid(row=4, column=0, columnspan=14, pady=10)
+    # Initialize with empty lists
+    entries1 = []
+    entries2 = []
+    operation_var = None
+    calculate_button = None
 
-    return poly_frame
+    def setup_entry_widgets(num_terms):
+        nonlocal entries1, entries2, operation_var, calculate_button
 
+        # Clear existing widgets
+        for widget in entries_container.winfo_children():
+            widget.destroy()
 
-# Test window
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Polynomial Operations Test")
-    frame = create_polynomial_operations_frame(root, 5)
-    frame.grid(row=0, column=0, padx=10, pady=10)
-    root.mainloop()
+        # Create two rows of polynomial entries
+        entries1 = create_polynomial_entry_row(entries_container, 1, num_terms)
+        operation_var = create_operation_buttons(entries_container, 2)
+        entries2 = create_polynomial_entry_row(entries_container, 3, num_terms)
+
+        calculate_button = ttk.Button(
+            entries_container,
+            text="Calculate",
+            command=perform_calculation
+        )
+        calculate_button.grid(row=4, column=0, columnspan=14, pady=10)
+
+    def perform_calculation():
+        # Get values from entries
+        poly1 = [int(entry.get()) for entry in reversed(entries1)]
+        poly2 = [int(entry.get()) for entry in reversed(entries2)]
+        operation = operation_var.get()
+
+        # Call the callback
+        on_calculation_requested(poly1, poly2, operation)
+
+    def set_active(active=True):
+        state = ['!disabled'] if active else ['disabled']
+        for entry in entries1 + entries2:
+            entry.state(state)
+        calculate_button.state(state)
+
+    def update_field_size(num_terms):
+        # Update the entries for the new field size
+        setup_entry_widgets(num_terms)
+
+    # Initial setup
+    setup_entry_widgets(number_of_terms)
+
+    # Start in disabled state until a field is selected
+    set_active(False)
+
+    # Return interface
+    return {
+        'frame': poly_frame,
+        'set_active': set_active,
+        'update_field_size': update_field_size
+    }
+

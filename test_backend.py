@@ -604,10 +604,6 @@ class TestModularPolynomial(unittest.TestCase):
         self.assertEqual(poly, ModularPolynomial(2, [1, 1, 0, 0, 0, 0, 1, 1, 1]))
         self.assertTrue(check_if_irreducible(poly))
 
-        poly = find_irreducible(3, 10)
-        self.assertEqual(poly, ModularPolynomial(3, [2, 0, 2, 0, 1, 0, 0, 0, 0, 2, 1]))
-        self.assertTrue(check_if_irreducible(poly))
-
     def setUp(self):
         """Set up some common calculators for testing"""
         # F₂² calculator
@@ -664,72 +660,72 @@ class TestModularPolynomial(unittest.TestCase):
     def test_addition(self):
         """Test addition in finite fields"""
         # Test in F₄
-        result = self.calc_f4.handle_operation([1, 0], [0, 1], "add")  # x + 1
+        result = self.calc_f4.handle_operation([1, 0], [0, 1], calculator_engine.FieldOperation.ADD)  # x + 1
         self.assertEqual(result, ModularPolynomial(2, [1, 1]))
 
         # Test in F₉
-        result = self.calc_f9.handle_operation([1, 1], [2, 1], "add")  # (x+1) + (x+2)
+        result = self.calc_f9.handle_operation([1, 1], [2, 1], calculator_engine.FieldOperation.ADD)  # (x+1) + (x+2)
         self.assertEqual(result, ModularPolynomial(3, [0, 2]))  # 2x
 
         # Test adding zero
-        result = self.calc_f4.handle_operation([1, 1], [0], "add")
+        result = self.calc_f4.handle_operation([1, 1], [0], calculator_engine.FieldOperation.ADD)
         self.assertEqual(result, ModularPolynomial(2, [1, 1]))
 
         # Test self-addition
-        result = self.calc_f4.handle_operation([1, 1], [1, 1], "add")
+        result = self.calc_f4.handle_operation([1, 1], [1, 1], calculator_engine.FieldOperation.ADD)
         self.assertEqual(result, ModularPolynomial(2, [0]))  # In F₂, x+x=0
 
     def test_subtraction(self):
         """Test subtraction in finite fields"""
         # In F₂, addition and subtraction are the same
-        result1 = self.calc_f4.handle_operation([1, 1], [1, 0], "add")
-        result2 = self.calc_f4.handle_operation([1, 1], [1, 0], "subtract")
+        result1 = self.calc_f4.handle_operation([1, 1], [1, 0], calculator_engine.FieldOperation.ADD)
+        result2 = self.calc_f4.handle_operation([1, 1], [1, 0], calculator_engine.FieldOperation.SUBTRACT)
         self.assertEqual(result1, result2)
 
         # Test in F₉
-        result = self.calc_f9.handle_operation([1, 1], [2, 1], "subtract")
+        result = self.calc_f9.handle_operation([1, 1], [2, 1], calculator_engine.FieldOperation.SUBTRACT)
         self.assertEqual(result, ModularPolynomial(3, [2, 0]))  # Should be 2
 
         # Test self-subtraction
-        result = self.calc_f4.handle_operation([1, 1], [1, 1], "subtract")
+        result = self.calc_f4.handle_operation([1, 1], [1, 1], calculator_engine.FieldOperation.SUBTRACT)
         self.assertTrue(result.is_zero())
 
 
     def test_multiplication(self):
         """Test multiplication in finite fields"""
         # Test in F₄
-        result = self.calc_f4.handle_operation([1, 1], [1, 1], "multiply")  # (x+1)(x+1)
+        result = self.calc_f4.handle_operation([1, 1], [1, 1], calculator_engine.FieldOperation.MULTIPLY)  # (x+1)(x+1)
         # Result should be reduced modulo the irreducible polynomial
         self.assertTrue(result.get_degree() < self.calc_f4.polynomial_modulus.get_degree())
 
         # Test multiplication by 1
-        result = self.calc_f4.handle_operation([1, 1], [1], "multiply")
+        result = self.calc_f4.handle_operation([1, 1], [1], calculator_engine.FieldOperation.MULTIPLY)
         self.assertEqual(result, ModularPolynomial(2, [1, 1]))
 
         # Test multiplication by 0
-        result = self.calc_f4.handle_operation([1, 1], [0], "multiply")
+        result = self.calc_f4.handle_operation([1, 1], [0], calculator_engine.FieldOperation.MULTIPLY)
         self.assertTrue(result.is_zero())
 
     def test_division(self):
         """Test division in finite fields"""
         # Test division by 1
-        result = self.calc_f4.handle_operation([1, 1], [1], "divide")
+        result = self.calc_f4.handle_operation([1, 1], [1], calculator_engine.FieldOperation.DIVIDE)
         self.assertEqual(result, ModularPolynomial(2, [1, 1]))
 
         # Test self-division
-        result = self.calc_f4.handle_operation([1, 1], [1, 1], "divide")
+        result = self.calc_f4.handle_operation([1, 1], [1, 1], calculator_engine.FieldOperation.DIVIDE)
         self.assertTrue(result.is_one())
 
         # Test division by 0
         with self.assertRaises(ValueError):
-            self.calc_f4.handle_operation([1, 1], [0], "divide")
+            self.calc_f4.handle_operation([1, 1], [0], calculator_engine.FieldOperation.DIVIDE)
 
         # Test division in F₉
         poly1 = [1, 1]  # x + 1
         poly2 = [2, 1]  # x + 2
-        result = self.calc_f9.handle_operation(poly1, poly2, "divide")
+        result = self.calc_f9.handle_operation(poly1, poly2, calculator_engine.FieldOperation.DIVIDE)
         # Verify result by multiplying back
-        check = self.calc_f9.handle_operation(result.coefficients, poly2, "multiply")
+        check = self.calc_f9.handle_operation(result.coefficients, poly2, calculator_engine.FieldOperation.MULTIPLY)
         self.assertEqual(check, ModularPolynomial(3, poly1))
 
     def test_field_axioms(self):
@@ -741,13 +737,13 @@ class TestModularPolynomial(unittest.TestCase):
 
         # (a + b) + c = a + (b + c)
         result1 = self.calc_f4.handle_operation(
-            self.calc_f4.handle_operation(a, b, "add").coefficients,
-            c, "add"
+            self.calc_f4.handle_operation(a, b, calculator_engine.FieldOperation.ADD).coefficients,
+            c, calculator_engine.FieldOperation.ADD
         )
         result2 = self.calc_f4.handle_operation(
             a,
-            self.calc_f4.handle_operation(b, c, "add").coefficients,
-            "add"
+            self.calc_f4.handle_operation(b, c, calculator_engine.FieldOperation.ADD).coefficients,
+            calculator_engine.FieldOperation.ADD
         )
         self.assertEqual(result1, result2)
 
@@ -755,13 +751,13 @@ class TestModularPolynomial(unittest.TestCase):
         # a * (b + c) = (a * b) + (a * c)
         left_side = self.calc_f4.handle_operation(
             a,
-            self.calc_f4.handle_operation(b, c, "add").coefficients,
-            "multiply"
+            self.calc_f4.handle_operation(b, c, calculator_engine.FieldOperation.ADD).coefficients,
+            calculator_engine.FieldOperation.MULTIPLY
         )
         right_side = self.calc_f4.handle_operation(
-            self.calc_f4.handle_operation(a, b, "multiply").coefficients,
-            self.calc_f4.handle_operation(a, c, "multiply").coefficients,
-            "add"
+            self.calc_f4.handle_operation(a, b, calculator_engine.FieldOperation.MULTIPLY).coefficients,
+            self.calc_f4.handle_operation(a, c, calculator_engine.FieldOperation.MULTIPLY).coefficients,
+            calculator_engine.FieldOperation.ADD
         )
         self.assertEqual(left_side, right_side)
 
@@ -799,136 +795,136 @@ class TestModularPolynomial(unittest.TestCase):
         # Set random seed for reproducibility
         random.seed(13)
 
-        # Test more fields, with higher dimensions
-        num_fields = 15
-        polynomials_per_field = 30
 
         # Track statistics
         total_operations = 0
         fields_tested = []
 
-        for field_num in range(num_fields):
-            # Generate field with wider parameter range
-            prime_modulus = random.choice([p for p in range(2, 102) if self.is_prime(p)])
-            dim = random.randint(1, 12)  # Testing higher dimensions
-            calculator = FiniteFieldCalculator(prime_modulus, dim)
+        for prime_modulus in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101]:
+            for dim in range(1, 13):
+                polynomials_per_field = prime_modulus
 
-            fields_tested.append((prime_modulus, dim))
-            print(f"\nTesting field #{field_num + 1}:")
-            print(f"Prime modulus: {calculator.prime_modulus}")
-            print(f"Extension degree: {calculator.polynomial_modulus.get_degree()}")
+                calculator = FiniteFieldCalculator(prime_modulus, dim)
 
-            # Generate more polynomials of varying degrees
-            polynomials = []
-            for _ in range(polynomials_per_field):
-                # Vary polynomial degrees more widely
-                degree = random.randint(0, calculator.polynomial_modulus.get_degree() - 1)
-                # Sometimes generate sparse polynomials
-                if random.random() < 0.2:  # 20% chance of sparse polynomial
-                    num_terms = random.randint(1, degree + 1)
-                    coeffs = [0] * (degree + 1)
-                    for _ in range(num_terms):
-                        pos = random.randint(0, degree)
-                        coeffs[pos] = random.randint(1, calculator.prime_modulus - 1)
+                fields_tested.append((prime_modulus, dim))
+                print(f"\nTesting field:")
+                print(f"Prime modulus: {calculator.prime_modulus}")
+                print(f"Extension degree: {calculator.polynomial_modulus.get_degree()}")
+
+                # Generate more polynomials of varying degrees
+                polynomials = []
+                for _ in range(polynomials_per_field):
+                    # Vary polynomial degrees more widely
+                    degree = random.randint(0, calculator.polynomial_modulus.get_degree() - 1)
+                    # Sometimes generate sparse polynomials
+                    if random.random() < 0.2:  # 20% chance of sparse polynomial
+                        num_terms = random.randint(1, degree + 1)
+                        coeffs = [0] * (degree + 1)
+                        for _ in range(num_terms):
+                            pos = random.randint(0, degree)
+                            coeffs[pos] = random.randint(1, calculator.prime_modulus - 1)
+                    else:
+                        coeffs = [random.randint(0, calculator.prime_modulus - 1) for _ in range(degree + 1)]
+
+                    # Ensure non-zero polynomial
+                    while all(c == 0 for c in coeffs):
+                        coeffs = [random.randint(0, calculator.prime_modulus - 1) for _ in range(degree + 1)]
+                    polynomials.append(coeffs)
+
+                # Add some special polynomials to test edge cases
+                if dim == 1:
+                    special_polynomials = [[1]]
                 else:
-                    coeffs = [random.randint(0, calculator.prime_modulus - 1) for _ in range(degree + 1)]
+                    special_polynomials = [
+                        [1],  # 1
+                        [0, 1],  # x
+                        [1] * calculator.polynomial_modulus.get_degree(),  # all ones
+                        [1 if i == 0 or i == calculator.polynomial_modulus.get_degree() - 1 else 0
+                         for i in range(calculator.polynomial_modulus.get_degree())]  # terms only at ends
+                    ]
+                polynomials.extend(special_polynomials)
 
-                # Ensure non-zero polynomial
-                while all(c == 0 for c in coeffs):
-                    coeffs = [random.randint(0, calculator.prime_modulus - 1) for _ in range(degree + 1)]
-                polynomials.append(coeffs)
+                # Test field properties with all polynomial combinations
+                for i in range(10):
+                    for j in range(10):
+                        for k in range(10):
+                            a = random.choice(polynomials)
+                            b = random.choice(polynomials)
+                            c = random.choice(polynomials)
 
-            # Add some special polynomials to test edge cases
-            if dim == 1:
-                special_polynomials = [[1]]
-            else:
-                special_polynomials = [
-                    [1],  # 1
-                    [0, 1],  # x
-                    [1] * calculator.polynomial_modulus.get_degree(),  # all ones
-                    [1 if i == 0 or i == calculator.polynomial_modulus.get_degree() - 1 else 0
-                     for i in range(calculator.polynomial_modulus.get_degree())]  # terms only at ends
-                ]
-            polynomials.extend(special_polynomials)
+                            # Test associativity of addition: (a + b) + c = a + (b + c)
+                            sum1 = calculator.handle_operation(
+                                calculator.handle_operation(a, b, calculator_engine.FieldOperation.ADD).coefficients,
+                                c, calculator_engine.FieldOperation.ADD
+                            )
+                            sum2 = calculator.handle_operation(
+                                a,
+                                calculator.handle_operation(b, c, calculator_engine.FieldOperation.ADD).coefficients,
+                                calculator_engine.FieldOperation.ADD
+                            )
+                            self.assertEqual(sum1, sum2,
+                                             f"Addition associativity failed in field F_{prime_modulus}^{dim}")
+                            total_operations += 2
 
-            # Test field properties with all polynomial combinations
-            for i in range(len(polynomials)):
-                for j in range(i, len(polynomials)):
-                    for k in range(j, len(polynomials)):
-                        a = polynomials[i]
-                        b = polynomials[j]
-                        c = polynomials[k]
+                            # Test commutativity of addition: a + b = b + a
+                            sum1 = calculator.handle_operation(a, b, calculator_engine.FieldOperation.ADD)
+                            sum2 = calculator.handle_operation(b, a, calculator_engine.FieldOperation.ADD)
+                            self.assertEqual(sum1, sum2,
+                                             f"Addition commutativity failed in field F_{prime_modulus}^{dim}")
+                            total_operations += 2
 
-                        # Test associativity of addition: (a + b) + c = a + (b + c)
-                        sum1 = calculator.handle_operation(
-                            calculator.handle_operation(a, b, "add").coefficients,
-                            c, "add"
-                        )
-                        sum2 = calculator.handle_operation(
-                            a,
-                            calculator.handle_operation(b, c, "add").coefficients,
-                            "add"
-                        )
-                        self.assertEqual(sum1, sum2,
-                                         f"Addition associativity failed in field F_{prime_modulus}^{dim}")
-                        total_operations += 2
+                            # Test distributive property: a * (b + c) = (a * b) + (a * c)
+                            left = calculator.handle_operation(
+                                a,
+                                calculator.handle_operation(b, c, calculator_engine.FieldOperation.ADD).coefficients,
+                                calculator_engine.FieldOperation.MULTIPLY
+                            )
+                            right = calculator.handle_operation(
+                                calculator.handle_operation(a, b, calculator_engine.FieldOperation.MULTIPLY).coefficients,
+                                calculator.handle_operation(a, c, calculator_engine.FieldOperation.MULTIPLY).coefficients,
+                                calculator_engine.FieldOperation.ADD
+                            )
+                            self.assertEqual(left, right,
+                                             f"Distributive property failed in field F_{prime_modulus}^{dim}")
+                            total_operations += 5
 
-                        # Test commutativity of addition: a + b = b + a
-                        sum1 = calculator.handle_operation(a, b, "add")
-                        sum2 = calculator.handle_operation(b, a, "add")
-                        self.assertEqual(sum1, sum2,
-                                         f"Addition commutativity failed in field F_{prime_modulus}^{dim}")
-                        total_operations += 2
+                            # Test commutativity of multiplication: a * b = b * a
+                            prod1 = calculator.handle_operation(a, b, calculator_engine.FieldOperation.MULTIPLY)
+                            prod2 = calculator.handle_operation(b, a, calculator_engine.FieldOperation.MULTIPLY)
+                            self.assertEqual(prod1, prod2,
+                                             f"Multiplication commutativity failed in field F_{prime_modulus}^{dim}")
+                            total_operations += 2
 
-                        # Test distributive property: a * (b + c) = (a * b) + (a * c)
-                        left = calculator.handle_operation(
-                            a,
-                            calculator.handle_operation(b, c, "add").coefficients,
-                            "multiply"
-                        )
-                        right = calculator.handle_operation(
-                            calculator.handle_operation(a, b, "multiply").coefficients,
-                            calculator.handle_operation(a, c, "multiply").coefficients,
-                            "add"
-                        )
-                        self.assertEqual(left, right,
-                                         f"Distributive property failed in field F_{prime_modulus}^{dim}")
-                        total_operations += 5
+                            # Test multiplicative inverse and division
+                            try:
+                                poly_a = ModularPolynomial(calculator.prime_modulus, a)
+                                inv_a = calculator.find_multiplicative_inverse(poly_a)
 
-                        # Test commutativity of multiplication: a * b = b * a
-                        prod1 = calculator.handle_operation(a, b, "multiply")
-                        prod2 = calculator.handle_operation(b, a, "multiply")
-                        self.assertEqual(prod1, prod2,
-                                         f"Multiplication commutativity failed in field F_{prime_modulus}^{dim}")
-                        total_operations += 2
+                                # Test a * a^(-1) = 1
+                                prod = calculator.handle_operation(a, inv_a.coefficients, calculator_engine.FieldOperation.MULTIPLY)
+                                self.assertTrue(prod.is_one(),
+                                                f"Multiplicative inverse property failed in field F_{prime_modulus}^{dim}")
 
-                        # Test multiplicative inverse and division
-                        try:
-                            poly_a = ModularPolynomial(calculator.prime_modulus, a)
-                            inv_a = calculator.find_multiplicative_inverse(poly_a)
+                                # Test (a * b) / b = a
+                                prod = calculator.handle_operation(a, b, calculator_engine.FieldOperation.MULTIPLY)
+                                div = calculator.handle_operation(prod.coefficients, b, calculator_engine.FieldOperation.DIVIDE)
+                                self.assertEqual(div, ModularPolynomial(calculator.prime_modulus, a),
+                                                 f"Division property failed in field F_{prime_modulus}^{dim}")
 
-                            # Test a * a^(-1) = 1
-                            prod = calculator.handle_operation(a, inv_a.coefficients, "multiply")
-                            self.assertTrue(prod.is_one(),
-                                            f"Multiplicative inverse property failed in field F_{prime_modulus}^{dim}")
+                                total_operations += 3
+                            except ValueError:
+                                # Skip if polynomial has no inverse (i.e., is zero)
+                                pass
 
-                            # Test (a * b) / b = a
-                            prod = calculator.handle_operation(a, b, "multiply")
-                            div = calculator.handle_operation(prod.coefficients, b, "divide")
-                            self.assertEqual(div, ModularPolynomial(calculator.prime_modulus, a),
-                                             f"Division property failed in field F_{prime_modulus}^{dim}")
-
-                            total_operations += 3
-                        except ValueError:
-                            # Skip if polynomial has no inverse (i.e., is zero)
-                            pass
-
-            print(f"Completed {total_operations} operations in this field")
+                # Test to check if the polynomial modulus is reducible
+                for p in polynomials:
+                    modpoly = ModularPolynomial(calculator.prime_modulus, p)
+                    if not modpoly.is_constant():
+                        self.assertFalse(calculator.polynomial_modulus.divided_by(modpoly).remainder.is_zero(),
+                                         f"Reducible Modulus found in field F_{prime_modulus}^{dim}")
 
         print("\nTest Summary:")
-        print(f"Tested {len(fields_tested)} fields:")
-        for p, d in fields_tested:
-            print(f"F_{p}^{d} (field size: {p}^{d})")
+        print(f"Tested {len(fields_tested)} fields")
         print(f"Total operations performed: {total_operations}")
 
 

@@ -36,7 +36,7 @@ Optimization and cleanup of the codebase while maintaining test compliance. This
 ### Phase 4: Documentation
 Creation of comprehensive documentation at all levels. This includes inline comments, function and class docstrings, mathematical background information, usage examples, and architectural documentation. The aim is to make the project accessible to future developers and users.
 
-**Current Status: Starting Phase 3 - Code Refinement**
+**Current Status: Halfway Through Phase 3 - Code Refinement (Back-end done, Front-end to be done)**
 
 
 ## Code Architecture

@@ -1,6 +1,7 @@
 from modular_polynomial import ModularPolynomial
 from irreducible_finder import find_irreducible
 from enum import Enum
+from typing import List, Tuple
 
 PRIME_LIST = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101]
 
@@ -13,20 +14,21 @@ class FieldOperation(Enum):
 
 
 class FiniteFieldCalculator:
-    def __init__(self, prime_modulus, dim):
+    def __init__(self, prime_modulus: int, dim: int):
         if prime_modulus not in PRIME_LIST:
             raise ValueError("Invalid modulus")
         self.prime_modulus = prime_modulus
         self.polynomial_modulus = find_irreducible(prime_modulus, dim)
 
-    def _reduce_by_modulus(self, poly):
+    def _reduce_by_modulus(self, poly: 'ModularPolynomial') -> 'ModularPolynomial':
         return poly.divided_by(self.polynomial_modulus).remainder
 
-    def _find_constant_inverse(self, polynomial):
+    def _find_constant_inverse(self, polynomial: 'ModularPolynomial') -> 'ModularPolynomial':
         constant_inverse = polynomial.coefficients[0] ** (self.prime_modulus - 2)
         return ModularPolynomial(self.prime_modulus, [constant_inverse])
 
-    def _compute_euclidean_sequence(self, polynomial):
+    def _compute_euclidean_sequence(self, polynomial: 'ModularPolynomial') -> Tuple[
+        List['ModularPolynomial'], List['ModularPolynomial']]:
         dividend = self.polynomial_modulus
         divisor = polynomial
         quotients = []
@@ -46,7 +48,8 @@ class FiniteFieldCalculator:
         return quotients, remainders
 
     @staticmethod
-    def _compute_expression_from_sequence(quotient_list, remainder_count):
+    def _compute_expression_from_sequence(quotient_list: List['ModularPolynomial'],
+                                          remainder_count: int) -> 'ModularPolynomial':
         intermediate_expressions = [quotient_list[0].get_negative()]
 
         if len(quotient_list) > 1:
@@ -59,7 +62,7 @@ class FiniteFieldCalculator:
 
         return intermediate_expressions[-1]
 
-    def find_multiplicative_inverse(self, polynomial):
+    def find_multiplicative_inverse(self, polynomial: 'ModularPolynomial') -> 'ModularPolynomial':
         if polynomial.is_zero():
             raise ValueError("Zero polynomial does not have an inverse")
 
@@ -73,7 +76,8 @@ class FiniteFieldCalculator:
         reduced_expression = self._reduce_by_modulus(initial_expression)
         return reduced_expression.product_with(final_constant_inverse)
 
-    def handle_operation(self, coefficient_set_0, coefficient_set_1, op):
+    def handle_operation(self, coefficient_set_0: List[int], coefficient_set_1: List[int],
+                         op: FieldOperation) -> 'ModularPolynomial':
         polynomial0 = ModularPolynomial(self.prime_modulus, coefficient_set_0)
         polynomial1 = ModularPolynomial(self.prime_modulus, coefficient_set_1)
 

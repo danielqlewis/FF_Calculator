@@ -23,6 +23,14 @@ class GuiCoordinator:
 
         self._init_ui()
 
+    def adjust_window_size(self):
+        self.root.update_idletasks()
+
+        width = self.root.winfo_reqwidth() + 20
+        height = self.root.winfo_reqheight() + 20
+
+        self.root.geometry(f"{width}x{height}")
+
     def _init_ui(self):
         """Initialize all UI components and layout"""
         main_frame = ttk.Frame(self.root, padding="10")
@@ -45,7 +53,17 @@ class GuiCoordinator:
         self.result_display = create_result_display_frame(main_frame)
         self.result_display['frame'].pack(fill=tk.X, pady=10)
 
-    # ===== Field Selector Callbacks =====
+        self.adjust_window_size()
+
+    def _update_ui_after_field_initialized(self, modulus, n):
+        self.field_selector['update_modulus_display'](f"Field modulus: {modulus}")
+
+        self.poly_entry['update_field_size'](n)
+        self.poly_entry['set_active'](True)
+
+        self.adjust_window_size()
+
+
     def handle_field_selected(self, p, n):
         try:
             # Validate inputs
@@ -58,12 +76,14 @@ class GuiCoordinator:
 
             # Show loading state
             self.field_selector['deactivate_and_show_loading']()
-            modulus = self.calculator_controller.initialize_field(p, n)
-            # Update the UI with the found modulus
-            self.field_selector['update_modulus_display'](f"Field modulus: {modulus}")
+            # Define callback for when field initialization completes
+            def on_field_initialized(modulus):
+                # This will be called from a background thread, so we need to
+                # schedule the UI updates on the main thread
+                self.root.after(0, lambda: self._update_ui_after_field_initialized(modulus, n))
 
-            self.poly_entry['update_field_size'](n)
-            self.poly_entry['set_active'](True)
+            # Start the asynchronous initialization
+            self.calculator_controller.initialize_field_async(p, n, on_field_initialized)
 
         except ValueError as e:
             messagebox.showerror("Invalid Input", str(e))
@@ -76,6 +96,7 @@ class GuiCoordinator:
         self.poly_entry['update_field_size'](1)
         self.poly_entry['set_active'](False)
         self.result_display['clear_result']()
+        self.adjust_window_size()
 
     def handle_calculation_requested(self, poly1, poly2, operation):
         result = self.calculator_controller.perform_calculation(poly1, poly2, operation)

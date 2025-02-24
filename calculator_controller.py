@@ -1,4 +1,5 @@
-from typing import List
+import threading
+from typing import List, Callable
 
 from calculator_engine import FiniteFieldCalculator, FieldOperation
 
@@ -8,13 +9,27 @@ class CalculatorController:
         self.calculator = None
         self.modulus_polynomial = None
 
-    def initialize_field(self, p: int, n: int) -> str:
-        try:
-            self.calculator = FiniteFieldCalculator(p, n)
-            self.modulus_polynomial = str(self.calculator.polynomial_modulus)
-            return self.modulus_polynomial
-        except ValueError as e:
-            return f"Error: {str(e)}"
+    def initialize_field_async(self, p: int, n: int, on_complete: Callable[[str], None]) -> None:
+        def _initialize():
+            try:
+                calculator = FiniteFieldCalculator(p, n)
+                modulus_string = str(calculator.polynomial_modulus)
+
+                # Store the results
+                self.calculator = calculator
+                self.modulus_polynomial = modulus_string
+
+                # Call the completion callback with the result
+                on_complete(modulus_string)
+            except ValueError as e:
+                on_complete(f"Error: {str(e)}")
+            except Exception as e:
+                on_complete(f"Unexpected error: {str(e)}")
+
+        # Start initialization in a separate thread
+        thread = threading.Thread(target=_initialize)
+        thread.daemon = True  # Thread will exit when main program exits
+        thread.start()
 
     def reset_calculator(self) -> None:
         self.calculator = None

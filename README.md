@@ -36,34 +36,44 @@ Optimization and cleanup of the codebase while maintaining test compliance. This
 ### Phase 4: Documentation
 Creation of comprehensive documentation at all levels. This includes inline comments, function and class docstrings, mathematical background information, usage examples, and architectural documentation. The aim is to make the project accessible to future developers and users.
 
-**Current Status: Halfway Through Phase 3 - Code Refinement (Back-end done, Front-end to be done)**
+**Current Status: Starting Phase 4 - Documentation**
 
 
 ## Code Architecture
 
-The project consists of seven Python modules organized in a three-tier structure:
+The project is organized into interconnected modules that separate the GUI interface from the computational engine:
 
-calculator_main.py
+![Architecture Diagram](Architecture Diagram.png)
 
-├── GUI Components:
+### Core Components
 
-│   ├── field_selector_gui.py  ┐
+The architecture follows a modified MVC (Model-View-Controller) pattern:
 
-│   ├── poly_entry_gui.py      ├── tkinter
+#### Front-End (View)
+- **gui_coordinator**: Central hub that manages all GUI components and their interactions
+  - **poly_entry_gui**: Interface for entering polynomial operands
+  - **field_selector_gui**: Interface for selecting the finite field parameters
+  - **result_display_gui**: Component for showing calculation results
 
-│   └── result_display_gui.py  ┘
+#### Back-End (Model)
+- **calculator_engine**: Core computational engine that handles field arithmetic operations
+  - **modular_polynomial**: Implementation of polynomial arithmetic modulo p
+  - **irreducible_finder**: Generator for irreducible polynomials of specified degree over F_p
 
-│
-└── Mathematical Engine:
+#### Control Layer
+- **calculator_main**: Primary controller that coordinates between the GUI and computational engine
+- **calculator_controller**: Handles the translation of user inputs into computational operations
 
-├── calculator_engine.py    ┐
+#### External Dependencies
+- **Tkinter**: Python's standard GUI toolkit used for all interface components
 
-                            ├── modular_polynomial.py
-                            
-└── irreducible_finder.py   ┘
+### Module Relationships
 
-The main module coordinates between the GUI components and mathematical engine. All GUI components are built using tkinter, while the mathematical components are built upon the core modular_polynomial module. 
+- The **calculator_main** initializes both the GUI coordinator and the calculator controller
+- The **calculator_controller** interfaces between the GUI and the mathematical engine
+- All GUI components report to the **gui_coordinator**, which centralizes user interface management
 
+This modular design allows for clear separation of concerns, making the code easier to maintain and extend. The mathematical core can function independently of the interface, enabling potential headless operation or alternative interfaces in the future.
 
 ## Module Descriptions
 

@@ -1,8 +1,4 @@
-import tkinter as tk
-from tkinter import ttk
-
-
-def create_polynomial_entry_row(frame, row_num, num_terms):
+def create_polynomial_entry_row(frame, row_num, ttk, num_terms):
     entries = []
     for i in range(1, 2 * num_terms + 1, 2):
         if i == 2 * num_terms - 3:
@@ -23,7 +19,9 @@ def create_polynomial_entry_row(frame, row_num, num_terms):
     return entries
 
 
-def create_operation_buttons(frame, row_num):
+def create_operation_buttons(frame, row_num, tk_packet):
+    tk = tk_packet[0]
+    ttk = tk_packet[1]
     # Create a variable to track which operation is selected
     operation_var = tk.StringVar(value="add")
 
@@ -62,7 +60,9 @@ def create_operation_buttons(frame, row_num):
     return operation_var
 
 
-def create_polynomial_operations_frame(parent, on_calculation_requested, number_of_terms=1):
+def create_polynomial_operations_frame(parent, on_calculation_requested, tk_packet, number_of_terms=1):
+    tk = tk_packet[0]
+    ttk = tk_packet[1]
     # Create the labeled frame
     poly_frame = ttk.LabelFrame(parent, text="Polynomial Operations", padding="10")
 
@@ -84,9 +84,9 @@ def create_polynomial_operations_frame(parent, on_calculation_requested, number_
             widget.destroy()
 
         # Create two rows of polynomial entries
-        entries1 = create_polynomial_entry_row(entries_container, 1, num_terms)
-        operation_var = create_operation_buttons(entries_container, 2)
-        entries2 = create_polynomial_entry_row(entries_container, 3, num_terms)
+        entries1 = create_polynomial_entry_row(entries_container, 1, ttk, num_terms)
+        operation_var = create_operation_buttons(entries_container, 2, [tk, ttk])
+        entries2 = create_polynomial_entry_row(entries_container, 3, ttk, num_terms)
 
         calculate_button = ttk.Button(
             entries_container,

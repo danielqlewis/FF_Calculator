@@ -1,8 +1,6 @@
-import tkinter as tk
-from tkinter import ttk
-
-
-def create_result_display_frame(parent):
+def create_result_display_frame(parent, tk_packet):
+    tk = tk_packet[0]
+    ttk = tk_packet[1]
     # Create the labeled frame
     result_frame = ttk.LabelFrame(parent, text="Result", padding="10")
 

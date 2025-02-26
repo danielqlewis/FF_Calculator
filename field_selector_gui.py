@@ -1,8 +1,6 @@
-import tkinter as tk
-from tkinter import ttk
-
-
-def create_field_selection_frame(parent, on_field_select, on_field_deselect):
+def create_field_selection_frame(parent, on_field_select, on_field_deselect, tk_packet):
+    tk = tk_packet[0]
+    ttk = tk_packet[1]
     # Create the labeled frame
     field_frame = ttk.LabelFrame(parent, text="Field Selection", padding="10")
 

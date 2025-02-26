@@ -1,6 +1,3 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
 from field_selector_gui import create_field_selection_frame
 from poly_entry_gui import create_polynomial_operations_frame
 from result_display_gui import create_result_display_frame
@@ -14,9 +11,12 @@ def is_prime(n):
 
 
 class GuiCoordinator:
-    def __init__(self, root, calculator_controller):
+    def __init__(self, root, calculator_controller, tk_packet):
         self.root = root
         self.calculator_controller = calculator_controller
+        self.tk = tk_packet[0]
+        self.ttk = tk_packet[1]
+        self.messagebox = tk_packet[2]
 
         root.title("Finite Field Calculator")
         root.geometry("800x600")
@@ -33,25 +33,27 @@ class GuiCoordinator:
 
     def _init_ui(self):
         """Initialize all UI components and layout"""
-        main_frame = ttk.Frame(self.root, padding="10")
-        main_frame.pack(fill=tk.BOTH, expand=True)
+        main_frame = self.ttk.Frame(self.root, padding="10")
+        main_frame.pack(fill=self.tk.BOTH, expand=True)
 
         self.field_selector = create_field_selection_frame(
             main_frame,
             on_field_select=self.handle_field_selected,
-            on_field_deselect=self.handle_field_deselected
+            on_field_deselect=self.handle_field_deselected,
+            tk_packet=[self.tk, self.ttk]
         )
-        self.field_selector['frame'].pack(fill=tk.X, pady=10)
+        self.field_selector['frame'].pack(fill=self.tk.X, pady=10)
 
         self.poly_entry = create_polynomial_operations_frame(
             main_frame,
             on_calculation_requested=self.handle_calculation_requested,
+            tk_packet=[self.tk, self.ttk],
             number_of_terms=1  # Default size until field is selected
         )
-        self.poly_entry['frame'].pack(fill=tk.X, pady=10)
+        self.poly_entry['frame'].pack(fill=self.tk.X, pady=10)
 
-        self.result_display = create_result_display_frame(main_frame)
-        self.result_display['frame'].pack(fill=tk.X, pady=10)
+        self.result_display = create_result_display_frame(main_frame, [self.tk, self.ttk])
+        self.result_display['frame'].pack(fill=self.tk.X, pady=10)
 
         self.adjust_window_size()
 
@@ -62,7 +64,6 @@ class GuiCoordinator:
         self.poly_entry['set_active'](True)
 
         self.adjust_window_size()
-
 
     def handle_field_selected(self, p, n):
         try:
@@ -76,6 +77,7 @@ class GuiCoordinator:
 
             # Show loading state
             self.field_selector['deactivate_and_show_loading']()
+
             # Define callback for when field initialization completes
             def on_field_initialized(modulus):
                 # This will be called from a background thread, so we need to
@@ -86,7 +88,7 @@ class GuiCoordinator:
             self.calculator_controller.initialize_field_async(p, n, on_field_initialized)
 
         except ValueError as e:
-            messagebox.showerror("Invalid Input", str(e))
+            self.messagebox.showerror("Invalid Input", str(e))
             self.field_selector['reset_to_initial_state']()
             return
 

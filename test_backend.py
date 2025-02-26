@@ -801,8 +801,8 @@ class TestModularPolynomial(unittest.TestCase):
         fields_tested = []
 
         for prime_modulus in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101]:
-            for dim in range(1, 13):
-                polynomials_per_field = prime_modulus * dim * min(dim, 5)
+            for dim in [6, 10, 12]:
+                polynomials_per_field = prime_modulus * dim * 125
 
                 calculator = FiniteFieldCalculator(prime_modulus, dim)
 

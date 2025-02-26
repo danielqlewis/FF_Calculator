@@ -43,7 +43,7 @@ Creation of comprehensive documentation at all levels. This includes inline comm
 
 The project is organized into interconnected modules that separate the GUI interface from the computational engine:
 
-![Architecture Diagram](./FF_Calculator/Architecture_Diagram.png)
+![Architecture Diagram](./Architecture_Diagram.png)
 
 ### Core Components
 

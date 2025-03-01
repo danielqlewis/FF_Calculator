@@ -124,7 +124,7 @@ class TestGuiIntegration(unittest.TestCase):
         self.calculator_controller = Mock(spec=CalculatorController)
 
         # Create the GUI coordinator with the mocked controller
-        self.gui_coordinator = GuiCoordinator(self.root, self.calculator_controller, [tk, ttk, messagebox])
+        self.gui_coordinator = GuiCoordinator(self.calculator_controller)
 
         # Store references to the GUI components for easier access in tests
         self.field_selector = self.gui_coordinator.field_selector
@@ -152,7 +152,7 @@ class TestGuiInitialization(TestGuiIntegration):
         self.poly_entry['set_active'](False)  # This should not raise an error
 
         # Check window title
-        self.assertEqual(self.root.title(), "Finite Field Calculator")
+        self.assertEqual(self.gui_coordinator.root.title(), "Finite Field Calculator")
 
 
 class TestFieldSelection(TestGuiIntegration):

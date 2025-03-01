@@ -1,5 +1,8 @@
-def create_polynomial_entry_row(frame, row_num, ttk, num_terms):
-    entries = []
+from typing import List, Callable, Dict, Any
+
+
+def create_polynomial_entry_row(frame, row_num: int, ttk, num_terms: int) -> List[Any]:
+    entries: List[ttk.Entry] = []
     for i in range(1, 2 * num_terms + 1, 2):
         if i == 2 * num_terms - 3:
             text = "x + "
@@ -8,7 +11,7 @@ def create_polynomial_entry_row(frame, row_num, ttk, num_terms):
                 text = ""
             else:
                 text = f"x^{num_terms - i // 2 - 1} + "
-        ttk.Label(frame, text=text).grid(row=row_num, column=i, padx=5, pady=15)  # Increased pady
+        ttk.Label(frame, text=text).grid(row=row_num, column=i, padx=5, pady=15)
 
     for i in range(0, 2 * num_terms, 2):
         entry = ttk.Entry(frame, width=5)
@@ -19,7 +22,7 @@ def create_polynomial_entry_row(frame, row_num, ttk, num_terms):
     return entries
 
 
-def create_operation_buttons(frame, row_num, tk_packet):
+def create_operation_buttons(frame, row_num: int, tk_packet: List[Any]):
     tk = tk_packet[0]
     ttk = tk_packet[1]
     # Create a variable to track which operation is selected
@@ -60,7 +63,11 @@ def create_operation_buttons(frame, row_num, tk_packet):
     return operation_var
 
 
-def create_polynomial_operations_frame(parent, on_calculation_requested, tk_packet, number_of_terms=1):
+def create_polynomial_operations_frame(parent,
+                                       on_calculation_requested: Callable[[List[int], List[int], str], None],
+                                       tk_packet: List[Any],
+                                       number_of_terms: int = 1
+                                       ) -> Dict[str, Any]:
     tk = tk_packet[0]
     ttk = tk_packet[1]
     # Create the labeled frame
@@ -76,7 +83,7 @@ def create_polynomial_operations_frame(parent, on_calculation_requested, tk_pack
     operation_var = None
     calculate_button = None
 
-    def setup_entry_widgets(num_terms):
+    def setup_entry_widgets(num_terms: int) -> None:
         nonlocal entries1, entries2, operation_var, calculate_button
 
         # Clear existing widgets
@@ -95,7 +102,7 @@ def create_polynomial_operations_frame(parent, on_calculation_requested, tk_pack
         )
         calculate_button.grid(row=4, column=0, columnspan=14, pady=10)
 
-    def perform_calculation():
+    def perform_calculation() -> None:
         # Get values from entries
         poly1 = [int(entry.get()) for entry in reversed(entries1)]
         poly2 = [int(entry.get()) for entry in reversed(entries2)]
@@ -104,13 +111,13 @@ def create_polynomial_operations_frame(parent, on_calculation_requested, tk_pack
         # Call the callback
         on_calculation_requested(poly1, poly2, operation)
 
-    def set_active(active=True):
+    def set_active(active: bool = True) -> None:
         state = ['!disabled'] if active else ['disabled']
         for entry in entries1 + entries2:
             entry.state(state)
         calculate_button.state(state)
 
-    def update_field_size(num_terms):
+    def update_field_size(num_terms: int) -> None:
         # Update the entries for the new field size
         setup_entry_widgets(num_terms)
 
@@ -126,4 +133,3 @@ def create_polynomial_operations_frame(parent, on_calculation_requested, tk_pack
         'set_active': set_active,
         'update_field_size': update_field_size
     }
-

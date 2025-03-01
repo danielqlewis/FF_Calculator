@@ -1,4 +1,11 @@
-def create_field_selection_frame(parent, on_field_select, on_field_deselect, tk_packet):
+from typing import Callable, Dict, List, Any
+
+
+def create_field_selection_frame(parent,
+                                 on_field_select: Callable[[int, int], None],
+                                 on_field_deselect: Callable[[], None],
+                                 tk_packet: List[Any]
+                                 ) -> Dict[str, Any]:
     tk = tk_packet[0]
     ttk = tk_packet[1]
     # Create the labeled frame
@@ -34,8 +41,7 @@ def create_field_selection_frame(parent, on_field_select, on_field_deselect, tk_
     # Variable to track active state
     is_active = tk.BooleanVar(value=False)
 
-
-    def toggle_field():
+    def toggle_field() -> None:
         current_state = is_active.get()
 
         if current_state:  # Checkbox was just checked
@@ -53,17 +59,17 @@ def create_field_selection_frame(parent, on_field_select, on_field_deselect, tk_
     active_check.grid(row=3, column=0, columnspan=2, pady=10)
 
     # Functions for coordinator to call
-    def deactivate_and_show_loading():
+    def deactivate_and_show_loading() -> None:
         p_entry.state(['disabled'])
         n_entry.state(['disabled'])
         active_check.state(['disabled'])
         mod_text.set("Finding irreducible modulus...")
 
-    def update_modulus_display(modulus_text):
+    def update_modulus_display(modulus_text: str) -> None:
         mod_text.set(modulus_text)
         active_check.state(['!disabled'])
 
-    def reset_to_initial_state():
+    def reset_to_initial_state() -> None:
         is_active.set(False)
         p_entry.state(['!disabled'])
         n_entry.state(['!disabled'])

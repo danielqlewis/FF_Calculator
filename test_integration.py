@@ -34,7 +34,7 @@ class TestControllerIntegration(unittest.TestCase):
 
         # Verify callback was called with the expected modulus
         self.callback.assert_called_once()
-        self.assertIsNotNone(self.controller.modulus_polynomial)
+        self.assertIsNotNone(self.controller._modulus_polynomial)
 
     def test_initialize_field_with_invalid_parameters(self):
         """Test field initialization with invalid parameters"""
@@ -62,8 +62,8 @@ class TestControllerIntegration(unittest.TestCase):
         self.controller.reset_calculator()
 
         # Verify it's been reset
-        self.assertIsNone(self.controller.calculator)
-        self.assertIsNone(self.controller.modulus_polynomial)
+        self.assertIsNone(self.controller._calculator)
+        self.assertIsNone(self.controller._modulus_polynomial)
 
     def test_perform_calculation_no_field(self):
         """Test calculation with no field selected"""

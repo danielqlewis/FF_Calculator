@@ -1,4 +1,8 @@
-def create_result_display_frame(parent, tk_packet):
+from typing import Dict, List, Any, Callable
+
+
+def create_result_display_frame(parent, tk_packet: List[Any]
+                                ) -> Dict[str, Any]:
     tk = tk_packet[0]
     ttk = tk_packet[1]
     # Create the labeled frame
@@ -13,10 +17,10 @@ def create_result_display_frame(parent, tk_packet):
                              font=('Arial', 10))
     result_label.grid(row=0, column=0, padx=10, pady=10)
 
-    def update_result(new_text):
+    def update_result(new_text: str) -> None:
         result_text.set(new_text)
 
-    def clear_result():
+    def clear_result() -> None:
         result_text.set("")
 
     return {
@@ -24,5 +28,3 @@ def create_result_display_frame(parent, tk_packet):
         'update_result': update_result,
         'clear_result': clear_result
     }
-
-

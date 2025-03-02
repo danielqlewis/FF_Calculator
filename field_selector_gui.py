@@ -6,6 +6,23 @@ def create_field_selection_frame(parent,
                                  on_field_deselect: Callable[[], None],
                                  tk_packet: List[Any]
                                  ) -> Dict[str, Any]:
+    """
+    Create a frame for selecting the field parameters p and n for GF(p^n).
+
+    Args:
+        parent: The parent widget to contain this frame.
+        on_field_select: Callback function triggered when a field is selected.
+                        Takes p and n as integer arguments.
+        on_field_deselect: Callback function triggered when a field is deselected.
+        tk_packet: A list containing the tkinter and ttk modules.
+
+    Returns:
+        A dictionary containing the frame widget and interface functions:
+        - 'frame': The created frame widget
+        - 'deactivate_and_show_loading': Function to disable inputs and show loading state
+        - 'update_modulus_display': Function to update the modulus display text
+        - 'reset_to_initial_state': Function to reset the UI to its initial state
+    """
     tk = tk_packet[0]
     ttk = tk_packet[1]
     # Create the labeled frame
@@ -42,6 +59,11 @@ def create_field_selection_frame(parent,
     is_active = tk.BooleanVar(value=False)
 
     def toggle_field() -> None:
+        """
+        Handle toggling of the active field checkbox.
+
+        Calls the appropriate callback based on the new state of the checkbox.
+        """
         current_state = is_active.get()
 
         if current_state:  # Checkbox was just checked
@@ -60,16 +82,30 @@ def create_field_selection_frame(parent,
 
     # Functions for coordinator to call
     def deactivate_and_show_loading() -> None:
+        """
+        Disable input elements and display loading message.
+        Called when field initialization begins.
+        """
         p_entry.state(['disabled'])
         n_entry.state(['disabled'])
         active_check.state(['disabled'])
         mod_text.set("Finding irreducible modulus...")
 
     def update_modulus_display(modulus_text: str) -> None:
+        """
+        Update the display with the calculated irreducible polynomial.
+
+        Args:
+            modulus_text: Text describing the irreducible polynomial.
+        """
         mod_text.set(modulus_text)
         active_check.state(['!disabled'])
 
     def reset_to_initial_state() -> None:
+        """
+        Reset the UI components to their initial state.
+        Called when deselecting a field or after an error.
+        """
         is_active.set(False)
         p_entry.state(['!disabled'])
         n_entry.state(['!disabled'])

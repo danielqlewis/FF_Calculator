@@ -18,6 +18,16 @@ PRIME_FACTORS = {
 
 
 def compute_large_exponent_of_x(target_power: int, modulus_polynomial: 'ModularPolynomial') -> 'ModularPolynomial':
+    """
+    Compute x^(target_power) mod modulus_polynomial efficiently using repeated squaring.
+
+    Args:
+        target_power: The exponent to raise x to.
+        modulus_polynomial: The polynomial to reduce by.
+
+    Returns:
+        A ModularPolynomial representing x^(target_power) mod modulus_polynomial.
+    """
     p = modulus_polynomial.modulus
     d = modulus_polynomial.get_degree()
     power = 1
@@ -47,6 +57,16 @@ def compute_large_exponent_of_x(target_power: int, modulus_polynomial: 'ModularP
 
 
 def check_non_prime_power_degree(poly: 'ModularPolynomial') -> bool:
+    """
+    Check if a polynomial with non-prime-power degree is irreducible by testing
+    for divisibility by potential low-degree factors.
+
+    Args:
+        poly: The ModularPolynomial to check.
+
+    Returns:
+        False if a low-degree factor was found, True otherwise.
+    """
     coeff_options = range(poly.modulus)
     for degree in [1, 2]:
         coefficients = [list(coeffs) + [1] for coeffs in product(coeff_options, repeat=degree)]
@@ -59,6 +79,16 @@ def check_non_prime_power_degree(poly: 'ModularPolynomial') -> bool:
 
 
 def check_if_low_degree_irreducible(poly: 'ModularPolynomial', deg: int) -> bool:
+    """
+    Check if a low-degree polynomial (degree ≤ 3) is irreducible.
+
+    Args:
+        poly: The ModularPolynomial to check.
+        deg: The degree of the polynomial.
+
+    Returns:
+        True if the polynomial is irreducible, False otherwise.
+    """
     if deg == 0:
         return poly.coefficients[0] != 0
 
@@ -74,6 +104,22 @@ def check_if_low_degree_irreducible(poly: 'ModularPolynomial', deg: int) -> bool
 
 
 def check_if_high_degree_irreducible(poly: 'ModularPolynomial', deg: int) -> bool:
+    """
+    Check if a higher-degree polynomial (degree > 3) is irreducible using
+    a modified version of Rabin's irreducibility test.
+
+    Args:
+        poly: The ModularPolynomial to check.
+        deg: The degree of the polynomial.
+
+    Returns:
+        True if the test indicates the polynomial is irreducible, False otherwise.
+
+    Note:
+        This implementation uses an optimized version of Rabin's test that works
+        perfectly for prime power degrees, but may require additional verification
+        for non-prime power degrees. See the design documentation for complete details.
+    """
     standard_poly = ModularPolynomial(poly.modulus, [0, 1])
     power = poly.modulus ** deg
 
@@ -91,6 +137,20 @@ def check_if_high_degree_irreducible(poly: 'ModularPolynomial', deg: int) -> boo
 
 
 def check_if_irreducible(poly: 'ModularPolynomial') -> bool:
+    """
+    Check if a polynomial is irreducible over its coefficient field.
+
+    This function applies different strategies based on polynomial degree:
+    - For degrees ≤ 3: Direct testing for roots or factors
+    - For higher degrees: Modified Rabin's irreducibility test
+    - For specific non-prime power degrees (6, 10, 12): Additional checks for low-degree factors
+
+    Args:
+        poly: The ModularPolynomial to check for irreducibility.
+
+    Returns:
+        True if the polynomial is irreducible, False otherwise.
+    """
     deg = poly.get_degree()
     if deg <= 3:
         if not check_if_low_degree_irreducible(poly, deg):
@@ -107,6 +167,19 @@ def check_if_irreducible(poly: 'ModularPolynomial') -> bool:
 
 
 def check_if_primitive(num: int, prime_modulus: int) -> bool:
+    """
+    Check if a number is primitive (generator) in the field Z/pZ.
+
+    A number is primitive if it generates all non-zero elements of the field
+    under multiplication.
+
+    Args:
+        num: The number to check.
+        prime_modulus: The prime modulus of the field.
+
+    Returns:
+        True if the number is primitive, False otherwise.
+    """
     order = 1
     current_value = num
     while current_value != 1:
@@ -117,6 +190,17 @@ def check_if_primitive(num: int, prime_modulus: int) -> bool:
 
 
 def find_irreducible_trinomial(characteristic: int, degree: int) -> 'ModularPolynomial':
+    """
+    Find an irreducible trinomial (polynomial with exactly three terms) of the
+    specified degree over the finite field of given characteristic.
+
+    Args:
+        characteristic: The characteristic of the field (must be prime).
+        degree: The degree of the trinomial to find.
+
+    Returns:
+        A ModularPolynomial representing an irreducible trinomial.
+    """
     primitive_elements = [x for x in range(1, characteristic) if check_if_primitive(x, characteristic)]
     leading_term = 1
 
@@ -133,6 +217,21 @@ def find_irreducible_trinomial(characteristic: int, degree: int) -> 'ModularPoly
 
 
 def find_irreducible(characteristic: int, degree: int) -> 'ModularPolynomial':
+    """
+    Find an irreducible polynomial of the specified degree over the finite field
+    of given characteristic.
+
+    Args:
+        characteristic: The characteristic of the field (must be prime).
+        degree: The degree of the irreducible polynomial to find.
+
+    Returns:
+        A ModularPolynomial that is irreducible over the specified field.
+
+    Note:
+        For most cases, returns an irreducible trinomial.
+        The special case of characteristic 2, degree 8 is handled spearately
+    """
     if degree == 1:
         return ModularPolynomial(characteristic, [0, 1])
 

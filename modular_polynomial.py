@@ -11,6 +11,13 @@ class ModularPolynomial:
     """
     A class representing polynomials with coefficients in Z/nZ (integers modulo n).
     Supports standard polynomial operations with coefficients reduced modulo n.
+
+    Example:
+    # Create a polynomial: 2x^2 + 3x + 1 mod 5
+    > poly = ModularPolynomial(5, [1, 3, 2])
+    > print(poly)
+    > 2x^2 + 3x + 1 mod 5
+
     """
     def __init__(self, modulus: int, raw_coefficients: List[int]):
         """
@@ -191,7 +198,10 @@ class ModularPolynomial:
 
     def add_one(self) -> 'ModularPolynomial':
         """
-        Return a new polynomial equal to the sum of this polynomial and one
+        Add 1 to this polynomial.
+
+        Returns:
+            A new ModularPolynomial representing (self + 1).
         """
         polynomial_one = ModularPolynomial(self.modulus, [1])
         return self.add_to(polynomial_one)

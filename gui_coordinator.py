@@ -9,6 +9,15 @@ from result_display_gui import create_result_display_frame
 
 
 def is_prime(n: int) -> bool:
+    """
+    Check if a number is prime using trial division.
+
+    Args:
+        n: The number to check.
+
+    Returns:
+        True if n is prime, False otherwise.
+    """
     for i in range(2, int(n ** 0.5) + 1):
         if n % i == 0:
             return False
@@ -16,7 +25,21 @@ def is_prime(n: int) -> bool:
 
 
 class GuiCoordinator:
+    """
+    Main coordinator for the Finite Field Calculator GUI.
+
+    Manages the interactions between UI components and orchestrates
+    the communication between frontend and backend (CalculatorController).
+    """
+
     def __init__(self, calculator_controller):
+        """
+        Initialize the GUI coordinator with a calculator controller.
+
+        Args:
+            calculator_controller: Controller instance that handles the mathematical operations
+                                  and manages the FiniteFieldCalculator.
+        """
         self.root = tk.Tk()
         self.calculator_controller = calculator_controller
 
@@ -31,6 +54,12 @@ class GuiCoordinator:
         self._init_ui()
 
     def adjust_window_size(self) -> None:
+        """
+        Adjust the window size to fit the content.
+
+        Recalculates the required dimensions based on the current content
+        and resizes the window accordingly.
+        """
         self.root.update_idletasks()
 
         width = self.root.winfo_reqwidth() + 20
@@ -39,7 +68,12 @@ class GuiCoordinator:
         self.root.geometry(f"{width}x{height}")
 
     def _init_ui(self) -> None:
-        """Initialize all UI components and layout"""
+        """
+        Initialize all UI components and lay them out in the main window.
+
+        Creates the field selector, polynomial entry, and result display components
+        and arranges them vertically in the main frame.
+        """
         main_frame = ttk.Frame(self.root, padding="10")
         main_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -65,12 +99,29 @@ class GuiCoordinator:
         self.adjust_window_size()
 
     def _update_ui_after_field_initialized(self, modulus: str, n: int) -> None:
+        """
+        Update UI components after field initialization is complete.
+
+        Args:
+            modulus: String representation of the field modulus.
+            n: Degree of the field extension.
+        """
         self.field_selector['update_modulus_display'](f"Field modulus: {modulus}")
         self.poly_entry['update_field_size'](n)
         self.poly_entry['set_active'](True)
         self.adjust_window_size()
 
     def handle_field_selected(self, p: int, n: int) -> None:
+        """
+        Handle user selection of field parameters.
+
+        Validates inputs, shows loading state, and initiates asynchronous
+        field initialization in the calculator controller.
+
+        Args:
+            p: The prime characteristic of the base field.
+            n: The degree of the field extension.
+        """
         try:
             # Validate inputs
             if not (1 < p <= 101):
@@ -98,6 +149,11 @@ class GuiCoordinator:
             return
 
     def handle_field_deselected(self) -> None:
+        """
+        Handle user deselection of the current field.
+
+        Resets the UI to its initial state and clears the calculator.
+        """
         self.field_selector['reset_to_initial_state']()
         self.calculator_controller.reset_calculator()
         self.poly_entry['update_field_size'](1)
@@ -106,5 +162,15 @@ class GuiCoordinator:
         self.adjust_window_size()
 
     def handle_calculation_requested(self, poly1: List[int], poly2: List[int], operation: str) -> None:
+        """
+        Handle calculation request from the polynomial entry component.
+
+        Delegates the calculation to the controller and updates the result display.
+
+        Args:
+            poly1: Coefficients of the first polynomial.
+            poly2: Coefficients of the second polynomial.
+            operation: String identifier of the operation to perform.
+        """
         result = self.calculator_controller.perform_calculation(poly1, poly2, operation)
         self.result_display['update_result'](result)

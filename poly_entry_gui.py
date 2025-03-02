@@ -2,6 +2,18 @@ from typing import List, Callable, Dict, Any
 
 
 def create_polynomial_entry_row(frame, row_num: int, ttk, num_terms: int) -> List[Any]:
+    """
+    Create a row of entry fields for polynomial coefficients with appropriate labels.
+
+    Args:
+        frame: The parent frame to contain the entry fields.
+        row_num: The row number in the grid layout.
+        ttk: The ttk module for creating widgets.
+        num_terms: The number of terms in the polynomial (degree + 1).
+
+    Returns:
+        A list of entry widgets for polynomial coefficients.
+    """
     entries: List[ttk.Entry] = []
     for i in range(1, 2 * num_terms + 1, 2):
         if i == 2 * num_terms - 3:
@@ -23,6 +35,17 @@ def create_polynomial_entry_row(frame, row_num: int, ttk, num_terms: int) -> Lis
 
 
 def create_operation_buttons(frame, row_num: int, tk_packet: List[Any]):
+    """
+    Create radio buttons for selecting arithmetic operations.
+
+    Args:
+        frame: The parent frame to contain the radio buttons.
+        row_num: The row number in the grid layout.
+        tk_packet: A list containing the tkinter and ttk modules.
+
+    Returns:
+        A StringVar tracking the selected operation.
+    """
     tk = tk_packet[0]
     ttk = tk_packet[1]
     # Create a variable to track which operation is selected
@@ -68,6 +91,22 @@ def create_polynomial_operations_frame(parent,
                                        tk_packet: List[Any],
                                        number_of_terms: int = 1
                                        ) -> Dict[str, Any]:
+    """
+    Create a frame for entering two polynomials and selecting operations between them.
+
+    Args:
+        parent: The parent widget to contain this frame.
+        on_calculation_requested: Callback function triggered when the calculate button is pressed.
+                                Takes two lists of polynomial coefficients and an operation string.
+        tk_packet: A list containing the tkinter and ttk modules.
+        number_of_terms: The initial number of terms in the polynomials (defaults to 1).
+
+    Returns:
+        A dictionary containing the frame widget and interface functions:
+        - 'frame': The created frame widget
+        - 'set_active': Function to enable or disable the entry fields
+        - 'update_field_size': Function to update the number of terms in each polynomial
+    """
     tk = tk_packet[0]
     ttk = tk_packet[1]
     # Create the labeled frame
@@ -84,6 +123,12 @@ def create_polynomial_operations_frame(parent,
     calculate_button = None
 
     def setup_entry_widgets(num_terms: int) -> None:
+        """
+        Set up or recreate the polynomial entry widgets with the specified number of terms.
+
+        Args:
+            num_terms: The number of terms in each polynomial.
+        """
         nonlocal entries1, entries2, operation_var, calculate_button
 
         # Clear existing widgets
@@ -103,6 +148,10 @@ def create_polynomial_operations_frame(parent,
         calculate_button.grid(row=4, column=0, columnspan=14, pady=10)
 
     def perform_calculation() -> None:
+        """
+        Collect polynomial coefficients and operation, then pass to the callback.
+        Called when the calculate button is pressed.
+        """
         # Get values from entries
         poly1 = [int(entry.get()) for entry in reversed(entries1)]
         poly2 = [int(entry.get()) for entry in reversed(entries2)]
@@ -112,12 +161,24 @@ def create_polynomial_operations_frame(parent,
         on_calculation_requested(poly1, poly2, operation)
 
     def set_active(active: bool = True) -> None:
+        """
+        Enable or disable the polynomial entry fields and calculate button.
+
+        Args:
+            active: True to enable, False to disable.
+        """
         state = ['!disabled'] if active else ['disabled']
         for entry in entries1 + entries2:
             entry.state(state)
         calculate_button.state(state)
 
     def update_field_size(num_terms: int) -> None:
+        """
+        Update the polynomial entry fields for a new field size.
+
+        Args:
+            num_terms: The new number of terms in each polynomial.
+        """
         # Update the entries for the new field size
         setup_entry_widgets(num_terms)
 

@@ -44,6 +44,30 @@ While primarily demonstrative, the calculator also has practical applications in
 - **Coding Theory**: Exploring the mathematics behind Reed-Solomon codes
 - **Algorithm Development**: Testing mathematical operations for implementations in these domains
 
+## Installation and Usage
+
+### Requirements
+
+- Python 3.9 (Standard Python installation)
+- Tkinter (included in standard Python installation)
+  
+### Running the Application
+
+1) Create a fresh directory on your machine and navigate to it in the command prompt
+2) Clone this repository:
+```
+git clone https://github.com/danielqlewis/FF_Calculator.git
+```
+3) Navigate to the project directory:
+```
+cd FF_Calculator
+```
+4) Run the application:
+```
+python calculator_main.py
+```
+
+
 ## Brief Overview of Code Architecture
 
 The Finite Field Calculator follows a modular architecture that separates the user interface, control logic, and mathematical operations:
@@ -123,4 +147,9 @@ Additional mathematical ideas employed in the implementation:
 - [Primitive Elements](https://en.wikipedia.org/wiki/Primitive_element_(finite_field)): Primitive Elements of the base field F_p are used in the construction of irreducible polynomials.
 
 - [Polynomial Irreducibility Tests](https://en.wikipedia.org/wiki/Irreducible_polynomial#Irreducibility_tests): Specifically, the root-based test for quadratic and cubic polynomials over finite fields.
+
+
+## Version History
+
+**v1.0** - [03/03/25] - Initial release
   

@@ -72,10 +72,9 @@ Our algorithm uses this insight to efficiently handle irreducibility testing:
 2. For n ∈ {6, 10, 12}:
    a. Apply the modified test first (faster)
    b. If the polynomial passes, perform additional divisibility checks:
-      - Test divisibility by all linear polynomials x - a, a ∈ GF(p)
-      - Test divisibility by all irreducible quadratic polynomials over GF(p)
-
-3. For all other n values: Revert to standard Rabin's test (not needed in our implementation as n ≤ 12)
+      - Test divisibility by all linear polynomials x + a, a ∈ GF(p)
+      - Test divisibility by all quadratic polynomials over GF(p)
+        
 
 ## 5. Performance Implications
 

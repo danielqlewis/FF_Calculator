@@ -305,9 +305,11 @@ class ModularPolynomial:
         quotient = ModularPolynomial(self.modulus, [0])
         remainder = self.get_copy()
 
+        # Continue division until remainder's degree is less than divisor's degree
         while self._can_continue_division(remainder, other):
             next_term = self._calculate_next_quotient_term(remainder, other)
             quotient = quotient.add_to(next_term)
+            # Calculate the polynomial to subtract from remainder: divisor × next_term
             intermediate_expression = other.product_with(next_term)
             remainder = intermediate_expression.subtract_from(remainder)
 

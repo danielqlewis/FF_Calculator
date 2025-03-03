@@ -30,26 +30,37 @@ def compute_large_exponent_of_x(target_power: int, modulus_polynomial: 'ModularP
     """
     p = modulus_polynomial.modulus
     d = modulus_polynomial.get_degree()
+
+    # Initialize with x^1 (the polynomial x)
     power = 1
     active_expression = ModularPolynomial(p, [0, 1])
+
+    # Keep track of computed powers for reuse
     expression_record = [(active_expression.get_copy(), power)]
 
     while power < target_power:
         add_expression_to_record = False
+
+        # Strategy: If doubling exceeds target, look for largest previously
+        # computed power that can be used
         if power * 2 > target_power:
             for x in reversed(expression_record):
+                # Find the largest power that doesn't exceed what we need and multiply by it
                 if x[1] <= target_power - power:
                     active_expression = active_expression.product_with(x[0])
                     power += x[1]
                     break
         else:
+            # Square the current expression
             active_expression = active_expression.product_with(active_expression)
             power *= 2
             add_expression_to_record = True
 
+        # If degree is too large, reduce by the modulus polynomial
         if active_expression.get_degree() >= d:
             active_expression = active_expression.divided_by(modulus_polynomial).remainder
 
+        # If squared, store newly computed power for potential future use
         if add_expression_to_record:
             expression_record.append((active_expression.get_copy(), power))
 
@@ -69,9 +80,12 @@ def check_non_prime_power_degree(poly: 'ModularPolynomial') -> bool:
     """
     coeff_options = range(poly.modulus)
     for degree in [1, 2]:
+        # Generate all possible polynomials of the current degree with monic leading term
+        # product() generates all combinations of coefficients for the lower terms
         coefficients = [list(coeffs) + [1] for coeffs in product(coeff_options, repeat=degree)]
         for potential_divisor_coefficients in coefficients:
             potential_divisor = ModularPolynomial(poly.modulus, potential_divisor_coefficients)
+            # If remainder is zero, we've found a factor, so poly is reducible
             if poly.divided_by(potential_divisor).remainder.is_zero():
                 return False
 
@@ -123,10 +137,12 @@ def check_if_high_degree_irreducible(poly: 'ModularPolynomial', deg: int) -> boo
     standard_poly = ModularPolynomial(poly.modulus, [0, 1])
     power = poly.modulus ** deg
 
+    # check that x^power not equal x mod input poly
     first_check = compute_large_exponent_of_x(power, poly)
     if first_check != standard_poly:
         return False
 
+    # check that x^(power/r) is equal x mod input poly for each prime r dividing power
     for r in PRIME_FACTORS[deg]:
         power = poly.modulus ** (deg // r)
         active_check = compute_large_exponent_of_x(power, poly)
@@ -205,11 +221,16 @@ def find_irreducible_trinomial(characteristic: int, degree: int) -> 'ModularPoly
     leading_term = 1
 
     for constant in primitive_elements + [1]:
+        # Try all possible non-zero coefficients for the middle term
         for y in range(1, characteristic):
-            for x in range(1, degree):
-                lower_term_zeros = [0] * (x - 1)
-                higher_term_zeros = [0] * (degree - x - 1)
+            # Try all possible positions for the middle term
+            for z in range(1, degree):
+                # Construct the trinomial: constant + y*x^z + x^degree
+                # Form: [constant, 0, 0, ..., y, 0, 0, ..., 1]
+                lower_term_zeros = [0] * (z - 1)             # Zeros between constant and middle term
+                higher_term_zeros = [0] * (degree - z - 1)   # Zeros between middle term and leading term
                 coefficient_set = [constant] + lower_term_zeros + [y] + higher_term_zeros + [leading_term]
+
                 polynomial = ModularPolynomial(characteristic, coefficient_set)
                 if check_if_irreducible(polynomial):
                     return polynomial

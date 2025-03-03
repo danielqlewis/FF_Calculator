@@ -15,16 +15,24 @@ def create_polynomial_entry_row(frame, row_num: int, ttk, num_terms: int) -> Lis
         A list of entry widgets for polynomial coefficients.
     """
     entries: List[ttk.Entry] = []
+
+    # First loop: Create and place labels (x^n terms) between entry fields
+    # The labels are placed in odd-numbered columns (1, 3, 5, etc.)
     for i in range(1, 2 * num_terms + 1, 2):
+        # Special case for the linear term (x^1)
         if i == 2 * num_terms - 3:
             text = "x + "
         else:
+            # For constant term, no variable shown
             if num_terms - i // 2 - 1 == 0:
                 text = ""
             else:
+                # For other terms, show x^n notation
                 text = f"x^{num_terms - i // 2 - 1} + "
         ttk.Label(frame, text=text).grid(row=row_num, column=i, padx=5, pady=15)
 
+    # Second loop: Create and place entry fields for coefficients
+    # The entries are placed in even-numbered columns (0, 2, 4, etc.)
     for i in range(0, 2 * num_terms, 2):
         entry = ttk.Entry(frame, width=5)
         entry.insert(0, "0")

@@ -1,94 +1,111 @@
 # Finite Field Calculator
 
-A Python-based calculator for performing arithmetic in finite fields of the form GF(p^n), where p is prime and n is a positive integer. The calculator supports:
-- Field selection with p ≤ 101 and n ≤ 12
-- Addition and subtraction of field elements
-- Multiplication and division of field elements
-- Automatic handling of reduction by irreducible polynomials
-- Interactive GUI interface
+## What the Program Is
 
-Field elements are represented as polynomials over F_p rather than as powers of a primitive element. This choice makes addition and subtraction operations straightforward, while making multiplication and division more complex. As such, the calculator's primary utility lies in computing products and multiplicative inverses in the field.
+The Finite Field Calculator is a desktop application that allows users to perform arithmetic operations in finite fields of the form GF(p^n), where p is a prime number and n is a positive integer. Key features include:
 
-The project uses Tkinter for its graphical interface, with the focus being on the mathematical engine powering the calculations rather than the GUI implementation itself.
+- Support for finite field extensions up to GF(p^12) with p ≤ 101
+- Polynomial representation of field elements
+- Basic arithmetic operations: addition, subtraction, multiplication, and division
+- Automatic generation of irreducible polynomials for field construction
+- Interactive graphical user interface for field selection and polynomial entry
+- Real-time calculation results
 
-This project serves both as a practical tool for finite field computations and as a demonstration of:
-- Object-oriented programming in Python
-- Mathematical algorithm implementation
-- GUI development using Tkinter
-- Test-driven development practices
+The calculator implements a novel approach to irreducibility testing that optimizes performance while maintaining mathematical correctness. This makes it both an educational tool for exploring finite field properties and a practical utility for performing calculations in these mathematical structures.
 
-The implementation emphasizes mathematical correctness and clean code structure over computational efficiency, making it suitable for educational purposes and moderate-size calculations.
+## Purpose of the Program
 
+### Technical Portfolio Demonstration
 
-## Development Plan
+The primary purpose of this calculator is as a portfolio project, this calculator demonstrates:
 
-This project is being developed in four distinct phases:
+- Implementation of non-trivial mathematical algorithms
+- Creation of a clean, modular software architecture
+- Development of a responsive GUI application
+- Novel optimization of established mathematical tests
+- Thorough documentation of both code and mathematical concepts
 
-### Phase 1: Initial Implementation
-Focus on creating working implementations of all core functionality. This includes the mathematical engine for finite field calculations, the GUI components for user interaction, and basic integration of all parts. The emphasis is on correctness rather than optimization or elegance.
+### Educational Value
 
-### Phase 2: Comprehensive Testing
-Development of extensive test suites for all components. This includes unit tests for individual classes and methods, integration tests for the complete system, and thorough testing of edge cases and error handling. The goal is to ensure mathematical correctness and robust behavior under all conditions.
+The secondary purpose of this calculator is educational, serving as an interactive tool for:
 
-### Phase 3: Code Refinement
-Optimization and cleanup of the codebase while maintaining test compliance. This involves standardizing coding style, improving algorithm efficiency where possible, enhancing error handling, and refactoring for better readability and maintainability.
+- Students learning abstract algebra and finite field theory
+- Instructors demonstrating field arithmetic operations visually
+- Researchers exploring properties of finite fields
+- Anyone interested in understanding the mathematical structures that underpin modern cryptography and coding theory
 
-### Phase 4: Documentation
-Creation of comprehensive documentation at all levels. This includes inline comments, function and class docstrings, mathematical background information, usage examples, and architectural documentation. The aim is to make the project accessible to future developers and users.
+By providing a hands-on way to work with finite fields, the calculator bridges the gap between abstract mathematical concepts and concrete arithmetic operations.
 
-**Current Status: Halfway Through Phase 3 - Code Refinement (Back-end done, Front-end to be done)**
+### Practical Applications
 
+While primarily demonstrative, the calculator also has practical applications in:
 
-## Code Architecture
+- **Cryptography**: Understanding operations in GF(2^8) used in AES encryption
+- **Coding Theory**: Exploring the mathematics behind Reed-Solomon codes
+- **Algorithm Development**: Testing mathematical operations for implementations in these domains
 
-The project consists of seven Python modules organized in a three-tier structure:
+## Brief Overview of Code Architecture
 
-calculator_main.py
+The Finite Field Calculator follows a modular architecture that separates the user interface, control logic, and mathematical operations:
 
-├── GUI Components:
+![Architecture Diagram](./Architecture_Diagram.png)
 
-│   ├── field_selector_gui.py  ┐
+### Core Components
 
-│   ├── poly_entry_gui.py      ├── tkinter
+**Main Entry Point**: `calculator_main`
+- Creates controller and coordinator instances
+- Initializes the application
 
-│   └── result_display_gui.py  ┘
+**GUI Coordinator**: `gui_coordinator`
+- Orchestrates all GUI components
+- Manages user interactions and delegates calculations to the controller
+- Handles state changes and updates the interface
 
-│
-└── Mathematical Engine:
-
-├── calculator_engine.py    ┐
-
-                            ├── modular_polynomial.py
-                            
-└── irreducible_finder.py   ┘
-
-The main module coordinates between the GUI components and mathematical engine. All GUI components are built using tkinter, while the mathematical components are built upon the core modular_polynomial module. 
-
-
-## Module Descriptions
+**Calculator Controller**: `calculator_controller`
+- Bridges between GUI and mathematical engine
+- Manages field initialization and calculation requests
+- Handles asynchronous operations
 
 ### GUI Components
-- **field_selector_gui.py**: Creates a frame allowing users to select the field GF(p^n) by inputting p and n. Validates inputs, manages the field selection state, and displays the irreducible polynomial being used to construct the field.
 
-- **poly_entry_gui.py**: Provides an interface for entering two polynomials and selecting an operation (addition, subtraction, multiplication, or division). Dynamically adjusts to the degree of the field polynomial modulus, providing the appropriate number of coefficient entry boxes.
+**Field Selector**: `field_selector_gui`
+- Allows users to specify p and n for GF(p^n)
+- Displays the irreducible polynomial modulus
+- Manages field activation state
 
-- **result_display_gui.py**: Simple display frame that shows the result of field operations in standard polynomial notation.
+**Polynomial Entry**: `poly_entry_gui`
+- Provides coefficient entry fields for two polynomials
+- Offers operation selection (add, subtract, multiply, divide)
+- Adjusts dynamically to the selected field size
+
+**Result Display**: `result_display_gui`
+- Shows calculation results in a clear format
 
 ### Mathematical Engine
-- **modular_polynomial.py**: Core class implementing polynomial arithmetic modulo p. Handles basic operations (addition, subtraction, multiplication, division with remainder) and includes methods for polynomial evaluation and comparison.
 
-- **calculator_engine.py**: Manages field arithmetic by combining modular polynomial operations with reduction by the field's irreducible polynomial. Implements the extended Euclidean algorithm for finding multiplicative inverses in the field.
+**Calculator Engine**: `calculator_engine`
+- Implements the `FiniteFieldCalculator` class
+- Handles field-specific arithmetic operations
+- Manages the irreducible polynomial modulus
 
-- **irreducible_finder.py**: Generates irreducible polynomials of specified degree over F_p. Uses a combination of constructive methods and irreducibility testing to efficiently find appropriate field-defining polynomials.
+**Irreducible Finder**: `irreducible_finder`
+- Generates irreducible polynomials using a modified Rabin's test
+- Implements optimized algorithms for testing irreducibility
+- Provides the foundation for finite field construction
 
-### Main Controller
-- **calculator_main.py**: Coordinates the GUI components and mathematical engine. Manages state between components, handles user input events, and ensures proper initialization and update of all calculator components.
+**Modular Polynomial**: `modular_polynomial`
+- Implements fundamental operations for polynomials in modular arithmetic
+- Provides core functionality used by higher-level components
+
+The architecture uses a callback mechanism for communication between components, allowing for loose coupling and flexibility. For more detailed information on the implementation, see the [Code Architecture Documentation](./Docs/Code Architecture.md).
 
 
 ## Mathematical Background
 
 ### Core Mathematical Concepts
 The calculator relies heavily on the following fundamental concepts:
+
+- [Rabin's Test for Irreducibility](https://en.wikipedia.org/wiki/Factorization_of_polynomials_over_finite_fields#Rabin's_test_of_irreducibility): Modifed version used for finding polynomial modulus for field extention.
 
 - [Polynomial Long Division](https://en.wikipedia.org/wiki/Polynomial_long_division): Used extensively for reduction modulo the field's irreducible polynomial.
 
